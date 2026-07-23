@@ -1,4 +1,3 @@
-import AuthLeftPanel from "@/components/features/auth/AuthLeftPanel";
 import RegisterForm from "@/components/features/auth/RegisterForm";
 
 export default function RegisterPage() {

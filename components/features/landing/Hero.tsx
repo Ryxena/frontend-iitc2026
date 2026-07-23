@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import maskotIITC from "@/public/Maskot2.svg";
 
 export default function Hero() {
@@ -51,9 +52,11 @@ export default function Hero() {
         </p>
 
         <div className="flex flex-wrap gap-4 pt-2">
-          <Button className="bg-indigo-700 hover:bg-indigo-800 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md px-7 py-5 text-sm font-medium">
-            Daftar Sekarang
-          </Button>
+          <Link href={"/register"} className="cursor-pointer">
+            <Button className="bg-indigo-700 hover:bg-indigo-800 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md px-7 py-5 text-sm font-medium">
+              Daftar Sekarang
+            </Button>
+          </Link>
           <Button
             variant="outline"
             className="rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md px-7 py-5 text-sm font-medium border-slate-300 text-slate-800 bg-white"

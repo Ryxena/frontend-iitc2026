@@ -13,7 +13,7 @@ export default function RegisterLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen w-full bg-white flex">
+    <div className="min-h-screen w-full bg-white flex font-sans">
       {" "}
       <AuthLeftPanel />
       {children}
