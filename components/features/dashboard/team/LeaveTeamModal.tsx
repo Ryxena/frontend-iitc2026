@@ -3,38 +3,31 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
-import { RemoveMemberModalProps } from "@/types/index";
+import { LeaveTeamModalProps } from "@/types/index";
 
-export default function RemoveMemberModal({
+export default function LeaveTeamModal({
   isOpen,
   onClose,
   onConfirm,
   teamName,
-}: RemoveMemberModalProps) {
+}: LeaveTeamModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[480px] p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
-        <DialogTitle className="hidden">
-          Konfirmasi Keluarkan Anggota
-        </DialogTitle>
+        <DialogTitle className="hidden">Konfirmasi Keluar Tim</DialogTitle>
 
         <div className="space-y-4">
-          {/* Header & Icon Warning */}
           <div className="flex items-center gap-3 text-[#b91c1c]">
             <AlertTriangle className="w-6 h-6" />
-            <h2 className="text-xl font-semibold">
-              Konfirmasi Keluarkan Anggota
-            </h2>
+            <h2 className="text-xl font-semibold">Konfirmasi Keluar Tim</h2>
           </div>
 
-          {/* Deskripsi */}
           <p className="text-slate-600 text-sm md:text-base leading-relaxed">
-            Apakah Anda yakin ingin mengeluarkan anggota dari Tim {teamName}?
-            Tindakan ini tidak dapat dibatalkan dan anggota harus diundang atau
-            memasukan kode kembali untuk bergabung.
+            Apakah Anda yakin ingin keluar dari Tim Majapahit Tech? Tindakan ini
+            tidak dapat dibatalkan dan Anda harus diundang atau memasukan kode
+            kembali untuk bergabung.
           </p>
 
-          {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 pt-6">
             <Button
               variant="ghost"
@@ -47,7 +40,7 @@ export default function RemoveMemberModal({
               onClick={onConfirm}
               className="bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium px-6 h-11 rounded-lg"
             >
-              Keluarkan
+              Ya, Keluar Tim
             </Button>
           </div>
         </div>
