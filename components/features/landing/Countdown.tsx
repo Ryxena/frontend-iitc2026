@@ -29,7 +29,7 @@ export default function Countdown() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, []);
 
   return (
     <section className="w-full py-12">
@@ -54,7 +54,11 @@ export default function Countdown() {
             transition={{ delay: idx * 0.1 }}
             className="flex flex-col items-center justify-center bg-white border border-slate-200 shadow-sm w-24 h-28 sm:w-40 sm:h-44 rounded-tl-[2rem] rounded-br-[2rem] rounded-tr-md rounded-bl-md"
           >
-            <span className="text-4xl sm:text-6xl font-bold text-amber-800">
+            {/* suppressHydrationWarning mencegah error jika waktu server & client berbeda tipis saat render awal */}
+            <span
+              className="text-4xl sm:text-6xl font-bold text-amber-800"
+              suppressHydrationWarning
+            >
               {item.value.toString().padStart(2, "0")}
             </span>
             <span className="text-xs sm:text-sm font-medium text-slate-400 mt-3 tracking-widest">
