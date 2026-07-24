@@ -13,3 +13,9 @@ export interface CompetitionCategoryModalProps {
 export interface PromoBannerProps {
   onIkutiLombaClick?: () => void;
 }
+
+export interface CreateTeamModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreateTeam: (teamName: string) => void;
+}

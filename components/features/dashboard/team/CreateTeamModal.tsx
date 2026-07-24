@@ -1,26 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-interface CreateTeamModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import { CreateTeamModalProps } from "@/types/index";
 
 export default function CreateTeamModal({
   isOpen,
   onClose,
+  onCreateTeam,
 }: CreateTeamModalProps) {
+  const [teamName, setTeamName] = useState("");
+
+  const handleCreate = () => {
+    // Jika kosong, gunakan nama default sesuai placeholder desain
+    const finalName = teamName.trim() === "" ? "Majapahit Tech" : teamName;
+    onCreateTeam(finalName);
+    setTeamName(""); // reset form
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[480px] p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
         <DialogTitle className="hidden">Buat Tim Baru</DialogTitle>
 
         <div className="space-y-6">
-          {/* Header & Deskripsi */}
           <div className="space-y-2">
             <h2 className="text-2xl md:text-3xl font-semibold text-slate-900">
               Buat Tim Baru
@@ -30,7 +37,6 @@ export default function CreateTeamModal({
             </p>
           </div>
 
-          {/* Form Input */}
           <div className="space-y-2 pt-2">
             <Label
               htmlFor="teamName"
@@ -40,12 +46,13 @@ export default function CreateTeamModal({
             </Label>
             <Input
               id="teamName"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
               placeholder="Masukkan nama tim (misal: Majapahit Tech)"
               className="h-12 bg-slate-50/50 border-slate-200 focus-visible:ring-[#1a0b8c] text-slate-900"
             />
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center justify-end gap-2 pt-6">
             <Button
               variant="ghost"
@@ -54,7 +61,10 @@ export default function CreateTeamModal({
             >
               Batal
             </Button>
-            <Button className="bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-8 h-11 rounded-lg">
+            <Button
+              onClick={handleCreate}
+              className="bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-8 h-11 rounded-lg"
+            >
               Buat Tim
             </Button>
           </div>
