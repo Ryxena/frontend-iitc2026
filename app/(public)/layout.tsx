@@ -7,7 +7,7 @@ import Footer from "@/components/features/landing/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Lomba Teknologi Nasional 2026 | Amikom TechFest",
+  title: "IITC | Lomba Teknologi Nasional 2026",
   description:
     "Kompetisi IT skala nasional untuk SMK/SMA sederajat seluruh Indonesia. Total hadiah berlimpah.",
   keywords: [
@@ -41,15 +41,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
-      <body
-        className={`${inter.className} bg-slate-50/50 text-slate-900`}
-        cz-shortcut-listen="true"
-      >
-        <Navbar />
-        {children}
-        <Footer />
-      </body>
-    </html>
+    <section className={`${inter.className} bg-slate-50/50 text-slate-900`}>
+      <Navbar />
+      {children}
+      <Footer />
+    </section>
   );
 }
