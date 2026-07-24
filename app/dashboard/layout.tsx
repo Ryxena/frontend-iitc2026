@@ -24,7 +24,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: Users, label: "Manajemen Tim", href: "/dashboard/team" },
   { icon: Wallet, label: "Pembayaran", href: "/dashboard/payment" },
-  { icon: CloudUpload, label: "Unggah Karya", href: "/dashboard/sub,issiom" },
+  { icon: CloudUpload, label: "Unggah Karya", href: "/dashboard/submission" },
   { icon: GraduationCap, label: "Seminar", href: "/dashboard/seminar" },
   { icon: BadgeCheck, label: "Sertifikat", href: "/dashboard/sertificate" },
 ];
