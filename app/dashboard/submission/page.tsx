@@ -72,7 +72,7 @@ export default function UploadWorkPage() {
 
         {/* 1. KATEGORI: WEB DESIGN */}
         <div className="space-y-3">
-          <h3 className="text-lg font-bold text-slate-800">Web Design :</h3>
+          {/* <h3 className="text-lg font-bold text-slate-800">Web Design :</h3> */}
           <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
             <CardContent className="p-8 space-y-6">
               <div className="flex items-center gap-2 text-slate-900">
