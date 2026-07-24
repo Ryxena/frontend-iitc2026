@@ -22,11 +22,11 @@ import maskotIITC from "@/public/Maskot2.svg";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Users, label: "Manajemen Tim", href: "/dashboard/tim" },
-  { icon: Wallet, label: "Pembayaran", href: "/dashboard/pembayaran" },
-  { icon: CloudUpload, label: "Unggah Karya", href: "/dashboard/unggah" },
+  { icon: Users, label: "Manajemen Tim", href: "/dashboard/team" },
+  { icon: Wallet, label: "Pembayaran", href: "/dashboard/payment" },
+  { icon: CloudUpload, label: "Unggah Karya", href: "/dashboard/sub,issiom" },
   { icon: GraduationCap, label: "Seminar", href: "/dashboard/seminar" },
-  { icon: BadgeCheck, label: "Sertifikat", href: "/dashboard/sertifikat" },
+  { icon: BadgeCheck, label: "Sertifikat", href: "/dashboard/sertificate" },
 ];
 
 // Isi sidebar dipisah jadi komponen sendiri supaya bisa dipakai ulang
@@ -88,13 +88,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           className="flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
         >
           <Settings className="w-5 h-5" /> Settings
-        </Link>
-        <button
+        </Link>{" "}
+        <Link
+          href="/"
           onClick={onNavigate}
           className="flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-slate-100 transition-colors w-full text-left"
         >
           <LogOut className="w-5 h-5" /> Logout
-        </button>
+        </Link>
       </div>
     </div>
   );
