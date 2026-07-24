@@ -1,13 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { PromoBannerProps } from "@/types/index";
 
-export default function PromoBanner() {
+export default function PromoBanner({ onIkutiLombaClick }: PromoBannerProps) {
   return (
     <div className="w-full bg-gradient-to-br from-[#E2E1F6] to-[#D5D3F1] rounded-2xl p-8 relative overflow-hidden flex flex-col justify-center border border-indigo-50 shadow-sm">
-      {/* TEMPAT ILUSTRASI BANNER (Di kanan atas seperti pada desain) */}
+      {/* Ilustrasi Banner di Kanan Atas */}
       <div className="absolute right-0 top-0 w-64 h-full flex items-center justify-end pr-8 opacity-40 pointer-events-none">
-        {/* Contoh visualisasi placeholder ilustrasi panah */}
         <div className="bg-indigo-300/30 w-24 h-24 rounded-2xl flex items-center justify-center backdrop-blur-sm -rotate-12">
           <ArrowRight className="w-12 h-12 text-indigo-400" />
         </div>
@@ -30,7 +30,11 @@ export default function PromoBanner() {
           Terdapat 4 kategori kompetisi teknologi bergengsi tahun ini.
         </p>
 
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-6 shadow-md shadow-blue-200 transition-transform hover:-translate-y-0.5">
+        {/* 2. Hubungkan event onClick ke prop onIkutiLombaClick */}
+        <Button
+          onClick={onIkutiLombaClick}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-6 shadow-md shadow-blue-200 transition-transform hover:-translate-y-0.5"
+        >
           Ikuti Lomba <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
       </div>

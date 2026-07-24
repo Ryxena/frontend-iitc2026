@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import TimeLeft from "@/types/types";
+import { TimeLeft } from "@/types/index";
 
 export default function Countdown() {
   const countdown = (): TimeLeft => {
