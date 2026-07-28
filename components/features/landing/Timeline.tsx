@@ -1,7 +1,7 @@
 "use client";
 import { memo, useCallback, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import {
   ClipboardCheck,
   ShieldCheck,
@@ -28,7 +28,6 @@ interface TimelineItem {
   align: "left" | "right";
 }
 
-// Data statis didefinisikan sekali di module scope (tidak dibuat ulang tiap render)
 const TIMELINE_DATA: TimelineItem[] = [
   {
     id: "01",
@@ -162,6 +161,21 @@ const Marker = memo(function Marker({ item }: { item: TimelineItem }) {
   );
 });
 
+// close terasa semulus open (tidak "antre" satu-satu menunggu delay lama).
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (delay: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, delay, ease: "easeOut" },
+  }),
+  exit: {
+    opacity: 0,
+    y: -10,
+    transition: { duration: 0.25, ease: "easeInOut" },
+  },
+};
+
 // React.memo pada card mencegah item lama ikut re-render saat showAll berubah
 const TimelineCard = memo(function TimelineCard({
   item,
@@ -175,15 +189,11 @@ const TimelineCard = memo(function TimelineCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      // Delay hanya diberi ke item baru yang muncul, bukan seluruh daftar
-      transition={{
-        duration: 0.4,
-        delay: isNew ? index * 0.06 : 0,
-        ease: "easeOut",
-      }}
+      custom={isNew ? index * 0.06 : 0}
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
       className={`relative flex flex-col md:flex-row items-start md:items-center ${
         item.align === "left" ? "md:flex-row-reverse" : ""
       }`}
@@ -269,7 +279,7 @@ export default function Timeline() {
         <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-slate-200 -translate-x-1/2"></div>
 
         <motion.div layout className="space-y-12 md:space-y-10">
-          <AnimatePresence initial={false}>
+          <AnimatePresence initial={false} mode="popLayout">
             {visibleData.map((item, index) => (
               <TimelineCard
                 key={item.id}
