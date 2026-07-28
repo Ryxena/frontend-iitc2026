@@ -87,7 +87,7 @@ export default function LoginForm() {
         </div>
 
         {/* Tombol Submit */}
-        <Button className="w-full bg-[#2e2be3] hover:bg-[#2523b8] text-white h-12 rounded-lg text-base font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
+        <Button className="w-full bg-[#2F2FE4] hover:bg-[#2523b8] text-white h-12 rounded-lg text-base font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
           Masuk <ArrowRight className="w-5 h-5" />
         </Button>
       </form>

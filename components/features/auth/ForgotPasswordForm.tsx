@@ -65,7 +65,7 @@ export default function ForgotPasswordForm() {
           </div>
 
           {/* Tombol Kirim Tautan */}
-          <Button className="w-full bg-[#2e2be3] hover:bg-[#2523b8] text-white h-12 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
+          <Button className="w-full bg-[#2F2FE4] hover:bg-[#2523b8] text-white h-12 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
             Kirim Tautan Reset <ArrowRight className="w-4 h-4" />
           </Button>
         </form>

@@ -142,7 +142,7 @@ export default function RegisterForm() {
         </div>
 
         {/* Tombol Submit */}
-        <Button className="w-full bg-[#1604a8] hover:bg-[#110287] text-white h-12 rounded-lg text-base font-medium mt-2 transition-colors shadow-md">
+        <Button className="w-full bg-[#2F2FE4] hover:bg-[#110287] text-white h-12 rounded-lg text-base font-medium mt-2 transition-colors shadow-md">
           Daftar
         </Button>
       </form>
