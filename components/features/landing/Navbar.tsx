@@ -7,10 +7,10 @@ import { Menu, X } from "lucide-react";
 import logoIITC2026 from "@/public/Logo-IITC2026.svg";
 
 const NAV_LINKS = [
-  { href: "#tentang", label: "Tentang" },
-  { href: "#kompetisi", label: "Kompetisi" },
-  { href: "#timeline", label: "Timeline" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#tentang", label: "Tentang" },
+  { href: "/#kompetisi", label: "Kompetisi" },
+  { href: "/#timeline", label: "Timeline" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export default function Navbar() {
