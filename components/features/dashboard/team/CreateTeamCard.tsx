@@ -31,7 +31,7 @@ export default function CreateTeamCard({ onClick }: CreateTeamCardProps) {
         <div>
           <Button
             onClick={onClick}
-            className="bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-6 h-11 rounded-lg flex items-center gap-2 transition-all"
+            className="bg-[#2F2FE4] hover:bg-[#13076b] text-white font-medium px-6 h-11 rounded-lg flex items-center gap-2 transition-all"
           >
             Buat Tim <ArrowRight className="w-4 h-4" />
           </Button>

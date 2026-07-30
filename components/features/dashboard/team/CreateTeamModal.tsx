@@ -49,7 +49,7 @@ export default function CreateTeamModal({
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="Masukkan nama tim (misal: Majapahit Tech)"
-              className="h-12 bg-slate-50/50 border-slate-200 focus-visible:ring-[#1a0b8c] text-slate-900"
+              className="h-12 bg-slate-50/50 border-slate-200 ring-1 focus-visible:ring-[#2F2FE4] text-slate-900"
             />
           </div>
 
@@ -57,13 +57,13 @@ export default function CreateTeamModal({
             <Button
               variant="ghost"
               onClick={onClose}
-              className="text-[#1a0b8c] hover:bg-indigo-50 hover:text-[#13076b] font-semibold px-6 h-11"
+              className="text-[#2F2FE4] hover:bg-indigo-50 hover:text-[#13076b] font-semibold px-6 h-11"
             >
               Batal
             </Button>
             <Button
               onClick={handleCreate}
-              className="bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-8 h-11 rounded-lg"
+              className="bg-[#2F2FE4] hover:bg-[#13076b] text-white font-medium px-8 h-11 rounded-lg"
             >
               Buat Tim
             </Button>

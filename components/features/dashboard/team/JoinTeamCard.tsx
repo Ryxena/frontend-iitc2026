@@ -48,13 +48,13 @@ export default function JoinTeamCard({ onJoin }: JoinTeamCardProps) {
               value={teamCode}
               onChange={(e) => setTeamCode(e.target.value)}
               placeholder="MISAL: A1B2C3"
-              className="h-11 border-slate-200 bg-slate-50 focus-visible:ring-[#1a0b8c] uppercase font-medium flex-1"
+              className="h-11 border-slate-200 bg-slate-50 focus-visible:ring-[#2F2FE4] uppercase font-medium flex-1"
               maxLength={6}
             />
             <Button
               onClick={handleJoin}
               variant="outline"
-              className="h-11 px-8 border-[#1a0b8c] text-[#1a0b8c] hover:bg-indigo-50 font-semibold rounded-lg shrink-0"
+              className="h-11 px-8 border-[#2F2FE4] text-[#1a0b8c] hover:bg-indigo-50 font-semibold rounded-lg shrink-0"
             >
               Gabung
             </Button>
