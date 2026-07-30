@@ -109,7 +109,7 @@ export default function CompetitionCategoryModal({
                           : "border-[#1a0b8c] text-[#1a0b8c] hover:bg-indigo-50"
                       }`}
                     >
-                      {isSelected ? "Terpilih" : "Pilih Kategori"}
+                      {isSelected ? "Terpilih" : "Pilih Lomba"}
                     </Button>
                   </div>
                 </div>

@@ -4,6 +4,5 @@ import type { LoginResponse } from "@/types/index";
 
 export async function login(input: LoginInput): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>("/auth/login", input);
-  console.log(data);
   return data;
 }

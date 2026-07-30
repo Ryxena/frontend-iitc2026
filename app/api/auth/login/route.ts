@@ -10,7 +10,6 @@ import type {
 } from "@/types/index";
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME ?? "token";
-console.log(true);
 
 export async function POST(request: Request) {
   const body = await request.json();
