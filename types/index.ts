@@ -21,11 +21,7 @@ export interface CreateTeamModalProps {
   onCreateTeam: (teamName: string) => void;
 }
 
-export interface ActiveTeamDashboardProps {
-  teamName: string;
-  role: "leader" | "member";
-  onLeaveTeam: () => void;
-}
+export type { ActiveTeamDashboardProps, TeamDetail, TeamMember, TeamLeader, TeamCompetition, GetTeamDetailResponse } from "./team-type";
 
 export interface RemoveMemberModalProps {
   isOpen: boolean;
