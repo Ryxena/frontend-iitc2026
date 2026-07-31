@@ -28,19 +28,28 @@ const CATEGORY_ICON_MAP: Record<string, typeof LayoutTemplate> = {
   "gen-ai-video": Bot,
 };
 
+// Key localStorage buat nyimpen slug lomba yang dipilih user, dipakai di
+// halaman lain (mis. Manajemen Tim) buat tahu lomba mana yang sedang
+// diproses tanpa harus lewat query param terus-terusan.
+const SELECTED_COMPETITION_STORAGE_KEY = "selectedCompetitionSlug";
+
 function getCategoryIcon(slug: string) {
   return CATEGORY_ICON_MAP[slug] ?? Trophy;
 }
 
-function formatPrice(price: number | null | undefined): string {
-  if (price === null || price === undefined || price === 0) {
+function formatPrice(competitionPrice: number | null | undefined): string {
+  if (
+    competitionPrice === null ||
+    competitionPrice === undefined ||
+    competitionPrice === 0
+  ) {
     return "Gratis";
   }
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
-  }).format(price);
+  }).format(competitionPrice);
 }
 
 export default function CompetitionCategoryModal({
@@ -65,10 +74,24 @@ export default function CompetitionCategoryModal({
   const handleLanjutkan = () => {
     if (!selectedCompetition) return;
 
+    // Simpan slug lomba yang dipilih ke localStorage supaya halaman lain
+    // (mis. Manajemen Tim) bisa baca tanpa bergantung ke query param yang
+    // hilang begitu user refresh/navigasi manual.
+    try {
+      localStorage.setItem(
+        SELECTED_COMPETITION_STORAGE_KEY,
+        selectedCompetition.slug,
+      );
+    } catch (err) {
+      // localStorage bisa gagal (mis. private browsing / storage penuh) —
+      // jangan blokir alur user cuma karena ini gagal, cukup log.
+      console.error("Gagal menyimpan slug lomba ke localStorage:", err);
+    }
+
     // "Save"-nya di sini bukan lewat API — belum ada endpoint khusus buat
     // nyimpen "kompetisi yang dipilih" tanpa bikin tim. Jadi kita simpan
-    // slug-nya lewat query param, terus arahkan ke halaman Manajemen Tim.
-    // Di sana, card "Buat Tim Baru" yang baca query param ini dan
+    // slug-nya lewat localStorage + query param, terus arahkan ke halaman
+    // Manajemen Tim. Di sana, card "Buat Tim Baru" yang baca slug ini dan
     // benar-benar manggil POST /api/teams/:slug begitu user isi nama tim.
     onClose();
     router.push(`/dashboard/team?competitionSlug=${selectedCompetition.slug}`);
@@ -195,7 +218,7 @@ export default function CompetitionCategoryModal({
                         )}
 
                         <p className="text-sm font-semibold text-[#1a0b8c] mb-4">
-                          {formatPrice(item.price)}
+                          {formatPrice(item.competitionPrice)}
                         </p>
 
                         {/* Tombol Pilih dalam Card */}

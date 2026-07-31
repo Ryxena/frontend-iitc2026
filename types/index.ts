@@ -118,7 +118,7 @@ export interface Competition {
   name: string;
   cover: string;
   maxMembers: number;
-  price?: number | null; // belum terkonfirmasi ada di response
+  competitionPrice?: number | null; // belum terkonfirmasi ada di response
   description?: string | null; // belum terkonfirmasi ada di response
 }
 
@@ -149,5 +149,21 @@ export interface JoinCompetitionResponse {
   message: string;
   data: {
     team: Team;
+  };
+}
+
+export interface UploadPaymentResponse {
+  success: boolean;
+  message: string;
+  data: {
+    team: {
+      teamId: number;
+    };
+    payment: {
+      team_id: number;
+      transfer_receipt: string;
+      updated_at: string;
+      created_at: string;
+    };
   };
 }
