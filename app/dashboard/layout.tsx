@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
+  User,
   Wallet,
   CloudUpload,
   GraduationCap,
@@ -24,6 +25,7 @@ import { useLogout } from "@/features/auth/hooks/use-logout";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: User, label: "Profil Saya", href: "/dashboard/profile" },
   { icon: Users, label: "Manajemen Tim", href: "/dashboard/team" },
   { icon: Wallet, label: "Pembayaran", href: "/dashboard/payment" },
   { icon: CloudUpload, label: "Unggah Karya", href: "/dashboard/submission" },
