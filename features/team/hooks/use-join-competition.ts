@@ -18,6 +18,7 @@ export function useJoinCompetition(competitionSlug: string) {
       // di halaman lain, mis. dashboard/team) jadi basi. Invalidate supaya
       // ke-refetch begitu ada komponen yang butuh, daripada nampilin data
       // lama yang belum include tim yang baru dibuat.
+      queryClient.invalidateQueries({ queryKey: ["my-team"] });
       queryClient.invalidateQueries({ queryKey: ["my-competitions"] });
 
       // Arahkan ke halaman Manajemen Tim supaya user lanjut proses

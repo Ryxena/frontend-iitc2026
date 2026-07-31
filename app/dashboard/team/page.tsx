@@ -10,34 +10,10 @@ import CreateTeamCard from "@/components/features/dashboard/team/CreateTeamCard"
 import JoinTeamCard from "@/components/features/dashboard/team/JoinTeamCard";
 import CreateTeamModal from "@/components/features/dashboard/team/CreateTeamModal";
 import ActiveTeamDashboard from "@/components/features/dashboard/team/ActiveTeamDashboard";
-import { useMyCompetitions } from "@/features/team/hooks/use-my-competitions";
+import { useMyTeam } from "@/features/team/hooks/use-my-team";
+import { useJoinTeam, getJoinTeamErrorMessage } from "@/features/team/hooks/use-join-team";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 import type { Team } from "@/types/index";
-
-// ============================================================================
-// CATATAN PENTING — keterbatasan data yang tersedia dari API saat ini:
-//
-// GET /api/competitions/mine (dipakai untuk cek "user sudah punya tim atau
-// belum") TIDAK mengembalikan siapa leader tim, kode undangan, atau daftar
-// anggota. Endpoint itu cuma kasih ringkasan: teamId, competitionName,
-// teamName, currentMembers, maxMembers, dst.
-//
-// Di struktur folder Postman kamu ada folder "Manage Team" dengan
-// GET/POST/DELETE ke /api/teams/{teamId} yang KEMUNGKINAN BESAR itu endpoint
-// detail tim (isinya leader, daftar member, kode undangan) — tapi belum ada
-// di dokumentasi odt yang kamu kasih. Jadi:
-//
-// 1. Role (leader/member) di sini masih pakai WORKAROUND sessionStorage —
-//    disimpan begitu user create/join tim di sesi browser INI. Ini TIDAK
-//    reliable lintas device/browser, dan hilang kalau sessionStorage
-//    di-clear. Ini bukan solusi permanen.
-// 2. ActiveTeamDashboard masih nampilin kode undangan & daftar anggota versi
-//    MOCK (data dummy) karena API yang dipanggil di sini belum bisa kasih
-//    data itu.
-//
-// Begini bisa dituntaskan: share dokumentasi/contoh curl dari
-// GET /api/teams/{teamId} (folder "Manage Team" di Postman), nanti bagian
-// ini + ActiveTeamDashboard di-update supaya semuanya dari data asli.
-// ============================================================================
 
 function getStoredRole(teamId: number): "leader" | "member" | null {
   if (typeof window === "undefined") return null;
@@ -53,63 +29,63 @@ function storeRole(teamId: number, role: "leader" | "member") {
 function TeamPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  // Ini yang dikirim dari CompetitionCategoryModal di Dashboard lewat
-  // router.push(`/dashboard/team?competitionSlug=...`).
   const competitionSlug = searchParams.get("competitionSlug");
 
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
 
-  const { data: myTeams, isLoading } = useMyCompetitions();
-  const activeTeam = myTeams?.[0] ?? null;
+  const { data: myTeamResponse, isLoading: isLoadingMyTeam, refetch: refetchMyTeam } = useMyTeam();
+  const teamDetail = myTeamResponse?.data?.team ?? null;
 
-  // "role" SENGAJA bukan useState. Nilainya murni turunan dari activeTeam +
-  // sessionStorage — bisa dihitung langsung tiap render tanpa perlu
-  // useEffect yang manggil setState (itu yang sebelumnya memicu warning
-  // "Calling setState synchronously within an effect": dua useEffect saling
-  // susul-menyusul cuma buat men-sinkronkan state React dengan dirinya
-  // sendiri, padahal nilainya sudah bisa dihitung langsung).
-  //
-  // Default ke "member" kalau belum pernah disimpan sama sekali — lebih
-  // aman daripada salah asumsi "leader" dan kasih akses hapus anggota ke
-  // orang yang bukan ketua tim (lihat catatan besar di atas).
-  const role: "leader" | "member" | null = activeTeam
-    ? (getStoredRole(activeTeam.teamId) ?? "member")
-    : null;
+  const joinTeamMutation = useJoinTeam();
 
-  // Effect yang tersisa CUMA menulis ke sessionStorage (sinkronisasi ke
-  // sistem eksternal — ini memang tugas semestinya sebuah effect), BUKAN
-  // memanggil setState. Supaya default "member" di atas benar-benar
-  // ke-persist, bukan cuma nilai sementara pas render.
-  useEffect(() => {
-    if (activeTeam && getStoredRole(activeTeam.teamId) === null) {
-      storeRole(activeTeam.teamId, "member");
+  const { data: profileData } = useProfile();
+  const userEmail = profileData?.data?.user?.email;
+
+  // Determine role: if logged in user email matches team.leader.email, role is leader.
+  // Otherwise fall back to storedRole or "member".
+  const derivedRole: "leader" | "member" | null = (() => {
+    if (!teamDetail) return null;
+    if (userEmail && teamDetail.leader?.email === userEmail) {
+      return "leader";
     }
-  }, [activeTeam]);
+    return getStoredRole(teamDetail.id) ?? "member";
+  })();
+
+  useEffect(() => {
+    if (teamDetail && derivedRole) {
+      storeRole(teamDetail.id, derivedRole);
+    }
+  }, [teamDetail, derivedRole]);
 
   const handleTeamCreated = (team: Team) => {
     storeRole(team.id, "leader");
-    // Bersihkan query param supaya kalau user refresh, gak nyoba create tim
-    // baru lagi buat competitionSlug yang sama.
     router.replace("/dashboard/team");
   };
 
-  const handleTeamJoined = () => {
-    // Query ["my-competitions"] sudah di-invalidate di dalam useJoinTeam,
-    // jadi begitu refetch selesai, activeTeam otomatis ke-update dan "role"
-    // di atas otomatis ikut terhitung ulang (default "member", lalu effect
-    // di atas yang nyimpen ke sessionStorage). Gak perlu apa-apa lagi di sini.
+  const handleTeamJoined = (code: string) => {
+    setJoinError(null);
+    joinTeamMutation.mutate(
+      { code },
+      {
+        onSuccess: () => {
+          setJoinError(null);
+          refetchMyTeam();
+        },
+        onError: (err) => {
+          setJoinError(getJoinTeamErrorMessage(err));
+        },
+      },
+    );
   };
 
   const handleLeaveTeam = () => {
-    if (activeTeam) {
-      sessionStorage.removeItem(`team-role:${activeTeam.teamId}`);
+    if (teamDetail) {
+      sessionStorage.removeItem(`team-role:${teamDetail.id}`);
     }
-    // TODO: belum ada endpoint terdokumentasi untuk "keluar dari tim" /
-    // "hapus tim" — tombol Keluar Tim di ActiveTeamDashboard masih
-    // console.log doang. Perlu dokumentasi endpoint itu untuk wire beneran.
   };
 
-  if (isLoading) {
+  if (isLoadingMyTeam) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] text-slate-400 text-sm">
         Memuat data tim...
@@ -119,7 +95,7 @@ function TeamPageContent() {
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center overflow-hidden">
-      {!activeTeam && (
+      {!teamDetail && (
         <CreateTeamModal
           isOpen={isCreateTeamOpen}
           onClose={() => setIsCreateTeamOpen(false)}
@@ -128,10 +104,11 @@ function TeamPageContent() {
         />
       )}
 
-      {activeTeam && role ? (
+      {teamDetail && derivedRole ? (
         <ActiveTeamDashboard
-          teamName={activeTeam.teamName}
-          role={role}
+          team={teamDetail}
+          role={derivedRole}
+          userEmail={userEmail}
           onLeaveTeam={handleLeaveTeam}
         />
       ) : (
@@ -166,7 +143,7 @@ function TeamPageContent() {
             {!competitionSlug && (
               <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
                 Anda belum memilih lomba. Silakan pilih lomba terlebih dahulu
-                dari halaman Dashboard sebelum membuat tim baru. (Kalau Anda mau
+                dari halaman Dashboard sebelum membuat tim baru. (Jika Anda mau
                 gabung tim yang sudah ada lewat kode undangan, ini tidak perlu.)
               </div>
             )}
@@ -176,7 +153,11 @@ function TeamPageContent() {
                 onClick={() => setIsCreateTeamOpen(true)}
                 disabled={!competitionSlug}
               />
-              <JoinTeamCard onJoin={handleTeamJoined} />
+              <JoinTeamCard
+                onJoin={handleTeamJoined}
+                isLoading={joinTeamMutation.isPending}
+                errorMessage={joinError}
+              />
             </div>
           </motion.div>
         </>
@@ -186,9 +167,6 @@ function TeamPageContent() {
 }
 
 export default function TeamPage() {
-  // useSearchParams wajib dibungkus Suspense di App Router, kalau enggak
-  // Next.js bakal warning/error saat build (khususnya untuk static
-  // rendering) karena butuh tau kapan halaman ini boleh di-render statis.
   return (
     <Suspense fallback={null}>
       <TeamPageContent />

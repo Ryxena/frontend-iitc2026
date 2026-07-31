@@ -10,6 +10,7 @@ export function useJoinTeam() {
   return useMutation({
     mutationFn: joinTeamAsMember,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-team"] });
       queryClient.invalidateQueries({ queryKey: ["my-competitions"] });
     },
   });
