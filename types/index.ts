@@ -8,6 +8,7 @@ export interface TimeLeft {
 export interface CompetitionCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelect?: (competition: Competition) => void;
 }
 
 export interface PromoBannerProps {
@@ -109,5 +110,44 @@ export interface RegisterResponse {
     id: string;
     fullName: string;
     email: string;
+  };
+}
+
+export interface Competition {
+  slug: string;
+  name: string;
+  cover: string;
+  maxMembers: number;
+  price?: number | null; // belum terkonfirmasi ada di response
+  description?: string | null; // belum terkonfirmasi ada di response
+}
+
+export interface CompetitionsApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    competitions: Competition[];
+  };
+}
+
+export interface GetCompetitionsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    competitions: Competition[];
+  };
+}
+
+export interface Team {
+  id: number;
+  code: string;
+  name: string;
+}
+
+export interface JoinCompetitionResponse {
+  status: number;
+  message: string;
+  data: {
+    team: Team;
   };
 }
