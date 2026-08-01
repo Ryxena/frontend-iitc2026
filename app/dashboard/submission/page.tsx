@@ -24,54 +24,69 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import SuccessModal from "@/components/features/dashboard/submission/SuccessModal";
 
-// Import hooks tim & tipe data
+// Cek eksistensi tim (ringan) + detail lengkap tim (leader, members,
+// submissionLink, competition) + profil user yang login.
 import { useMyCompetitions } from "@/features/team/hooks/use-my-competitions";
+import { useMyTeam } from "@/features/team/hooks/use-my-team";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 import {
   useUpdateTeam,
   getUpdateTeamErrorMessage,
 } from "@/features/team/hooks/use-update-team";
-import { MyTeamSummary } from "@/types/team-type";
 
 export default function UploadWorkPage() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  // 1. Ambil data tim & kompetisi dari API
-  const { data: teamResponse, isLoading: isTeamLoading } = useMyCompetitions();
+  // 1. Cek dulu (ringan) apakah user punya tim sama sekali — pola yang sama
+  //    dipakai di dashboard/team/page.tsx, biar dua halaman ini konsisten
+  //    caranya nge-gate query detail yang lebih berat.
+  const { data: myTeamsSummary, isLoading: isSummaryLoading } =
+    useMyCompetitions();
+  const hasTeam = Array.isArray(myTeamsSummary) && myTeamsSummary.length > 0;
+
+  // 2. Baru fetch detail lengkap kalau memang ada tim. Detail ini yang
+  //    punya leader.email, submissionLink, dan competition lengkap
+  //    (slug, name, price, description, deadline) — data yang gak ada
+  //    di useMyCompetitions.
+  const { data: teamDetailResponse, isLoading: isDetailLoading } =
+    useMyTeam(hasTeam);
+  const team = teamDetailResponse?.data?.team;
+
+  // 3. Profil user yang login — dipakai buat nentuin leader/bukan lewat
+  //    PERBANDINGAN EMAIL, bukan Boolean(team?.leader) yang selalu true
+  //    (karena field "leader" emang selalu ada di objek team, siapapun
+  //    yang login).
+  const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
+  const userEmail = profileResponse?.data?.user?.email;
+
+  const isLeader = Boolean(
+    team?.leader?.email &&
+    userEmail &&
+    team.leader.email.toLowerCase().trim() === userEmail.toLowerCase().trim(),
+  );
+
   const updateMutation = useUpdateTeam();
 
-  // 2. Ekstrak data tim dengan aman berdasarkan struktur response API
-  const responseData = teamResponse as unknown as
-    | { data?: MyTeamSummary[] }
-    | MyTeamSummary[];
-
-  let teamData: MyTeamSummary | undefined;
-  if (Array.isArray(responseData)) {
-    teamData = responseData[0];
-  } else if (responseData && Array.isArray(responseData.data)) {
-    teamData = responseData.data[0];
-  }
-
-  const competition = teamData?.competition;
-
-  // 3. Gunakan state lokal untuk input link, inisialisasi awal langsung dibaca dari data API
-  // menggunakan key trick atau fallback agar tidak membutuhkan useEffect sinkronisasi manual.
+  // State lokal untuk input link — kalau user belum ngetik apa-apa, pakai
+  // data dari server; kalau sudah ngetik, pakai inputan user. Ini derived
+  // state biasa, gak butuh useEffect buat sinkronisasi.
   const [userEditedLink, setUserEditedLink] = useState<string | null>(null);
-
-  // Jika user belum ngetik apa-apa, pakai data dari server. Kalau sudah ngetik, pakai inputan user.
   const driveLink =
-    userEditedLink !== null ? userEditedLink : teamData?.submissionLink || "";
-
-  // 4. Validasi apakah user yang login adalah Leader tim
-  const isLeader = Boolean(teamData?.leader);
+    userEditedLink !== null ? userEditedLink : team?.submissionLink || "";
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!driveLink.trim() || !teamData) return;
+    // Jaga-jaga ganda: tombol submit ini seharusnya sudah gak kerender
+    // sama sekali kalau !isLeader (lihat JSX di bawah), tapi dicek lagi
+    // di sini supaya gak ada request "siluman" walau somehow ke-trigger.
+    if (!driveLink.trim() || !team || !isLeader) return;
 
-    // Payload wajib menyertakan name dan title sesuai validasi Laravel
     const payload = {
-      name: teamData.name,
-      title: teamData.title,
+      name: team.name,
+      // "title" wajib menurut validasi Laravel tapi bisa null di data kita
+      // (belum pernah diisi) — fallback ke nama tim biar gak keblok
+      // validasi cuma gara-gara field kosong.
+      title: team.title ?? team.name,
       submission: driveLink,
     };
 
@@ -80,13 +95,14 @@ export default function UploadWorkPage() {
         setIsSuccessModalOpen(true);
       },
       onError: (error) => {
-        const errorMessage = getUpdateTeamErrorMessage(error);
-        toast.error(errorMessage);
+        toast.error(getUpdateTeamErrorMessage(error));
       },
     });
   };
 
-  if (isTeamLoading) {
+  const isLoading = isSummaryLoading || isDetailLoading || isProfileLoading;
+
+  if (isLoading) {
     return (
       <div className="flex h-[400px] w-full items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#2F2FE4]" />
@@ -94,7 +110,21 @@ export default function UploadWorkPage() {
     );
   }
 
-  // Slug kompetisi dari API untuk menentukan jenis persyaratan
+  // Belum punya tim sama sekali — jangan render form upload apa pun,
+  // arahkan ke halaman Manajemen Tim dulu.
+  if (!hasTeam || !team) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] text-center gap-3">
+        <AlertCircle className="w-10 h-10 text-slate-300" />
+        <p className="text-slate-500 text-sm max-w-sm">
+          Anda belum tergabung dalam tim manapun. Buat atau gabung tim terlebih
+          dahulu di halaman Manajemen Tim sebelum bisa mengunggah karya.
+        </p>
+      </div>
+    );
+  }
+
+  const competition = team.competition;
   const compSlug = competition?.slug?.toLowerCase() || "";
 
   return (
@@ -130,7 +160,7 @@ export default function UploadWorkPage() {
           </div>
           <div>
             <h4 className="text-sm font-semibold text-[#2F2FE4] mb-1">
-              Informasi Ketua Tim ({teamData?.leader?.name || "Ketua"})
+              Informasi Ketua Tim ({team.leader?.name || "Ketua"})
             </h4>
             <p className="text-sm text-slate-600">
               Hanya Ketua Tim yang dapat mengunggah atau memperbarui tautan

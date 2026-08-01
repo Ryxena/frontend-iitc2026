@@ -13,6 +13,7 @@ export function useUploadPayment() {
       // Invalidate query agar UI status pembayaran otomatis ter-refresh (menunggu verifikasi)
       // Sesuaikan queryKey ini dengan key yang kamu pakai untuk get status tim/kompetisi
       queryClient.invalidateQueries({ queryKey: ["my-competitions"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-status"] });
     },
   });
 }

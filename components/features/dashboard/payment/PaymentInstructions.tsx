@@ -1,9 +1,28 @@
+// components/features/dashboard/payment/PaymentInstructions.tsx
 import { ListOrdered } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function PaymentInstructions() {
+interface PaymentInstructionsProps {
+  fee?: number | string; // Tambahkan props fee
+}
+
+export default function PaymentInstructions({ fee }: PaymentInstructionsProps) {
+  // Format angka ke format mata uang Rupiah
+  const formattedFee = fee
+    ? new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+      }).format(Number(fee))
+    : "sesuai tagihan lomba"; // Fallback teks jika data belum ada
+
+  // Ubah array ini menjadi ReactNode agar bisa menerima tag HTML/JSX
   const instructions = [
-    "Transfer sesuai nominal biaya pendaftaran kompetisi (Rp 150.000).",
+    <>
+      Transfer sesuai nominal biaya pendaftaran kompetisi (
+      <strong className="font-bold text-slate-900">{formattedFee}</strong>
+      ).
+    </>,
     "Simpan bukti transfer dalam format JPG, PNG, atau PDF.",
     "Unggah file bukti pada area dropzone di samping.",
     "Tunggu verifikasi admin maksimal 2×24 jam kerja.",
@@ -18,12 +37,12 @@ export default function PaymentInstructions() {
         </div>
 
         <div className="space-y-5">
-          {instructions.map((text, index) => (
+          {instructions.map((item, index) => (
             <div key={index} className="flex gap-4">
               <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                 {index + 1}
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed">{text}</p>
+              <p className="text-sm text-slate-600 leading-relaxed">{item}</p>
             </div>
           ))}
         </div>

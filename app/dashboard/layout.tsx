@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import maskotIITC from "@/public/Maskot2.svg";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { Toaster } from "@/components/ui/sonner";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -93,7 +94,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Bottom Menu */}
       <div className="pb-8 px-6 pt-6 space-y-1 border-t border-slate-200 mx-6">
         <Link
-          href="/settings"
+          href="/dashboard/settings"
           onClick={onNavigate}
           className="flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
         >
@@ -131,6 +132,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-[#F8FAFC]">
+      <Toaster />
       {/* Sidebar Desktop */}
       <aside className="w-64 bg-[#F8FAFC] border-r border-slate-200 hidden md:flex">
         <SidebarContent />

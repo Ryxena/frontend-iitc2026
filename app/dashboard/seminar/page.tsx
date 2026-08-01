@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import SeminarInfoCard from "@/components/features/dashboard/seminar/SeminarInfoCard";
-import SeminarFormCard from "@/components/features/dashboard/seminar/SeminarFormCard";
 
 export default function SeminarPage() {
   return (
@@ -26,7 +25,6 @@ export default function SeminarPage() {
       <SeminarInfoCard />
 
       {/* Registration Form Card */}
-      <SeminarFormCard />
     </motion.div>
   );
 }

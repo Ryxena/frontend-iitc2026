@@ -5,6 +5,13 @@ export interface TimeLeft {
   seconds: number;
 }
 
+export interface DeadlineCardProps {
+  title: string;
+  startDate: string | Date; // Kapan pendaftaran/event dimulai
+  targetDate: string | Date; // Kapan batas akhirnya
+  label?: string;
+}
+
 export interface CompetitionCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;

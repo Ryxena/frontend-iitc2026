@@ -45,7 +45,13 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex flex-col gap-6">
-            <DeadlineCard />
+            {/* Ubah props di sini dengan menggunakan tanggal */}
+            <DeadlineCard
+              label="Tenggat Waktu"
+              title="Batas Akhir Pengumpulan Karya"
+              startDate="2026-07-01" // Contoh: Tanggal dibuka
+              targetDate="2026-08-15" // Contoh: Tanggal ditutup
+            />
             <EmptyStateCard />
           </div>
         </div>
