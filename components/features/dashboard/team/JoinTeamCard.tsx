@@ -1,22 +1,24 @@
+// components/features/dashboard/team/JoinTeamCard.tsx
 "use client";
 
 import { useState } from "react";
-import { Key } from "lucide-react";
+import { Key, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface JoinTeamCardProps {
-  onJoin?: (code: string) => void;
+  onJoin: (code: string) => void;
+  isPending?: boolean;
 }
 
-export default function JoinTeamCard({ onJoin }: JoinTeamCardProps) {
+export default function JoinTeamCard({ onJoin, isPending }: JoinTeamCardProps) {
   const [teamCode, setTeamCode] = useState("");
 
   const handleJoin = () => {
     if (teamCode.trim().length > 0 && onJoin) {
-      onJoin(teamCode);
+      onJoin(teamCode.trim());
     }
   };
 
@@ -30,8 +32,8 @@ export default function JoinTeamCard({ onJoin }: JoinTeamCardProps) {
         <div className="flex-1 space-y-3 mb-8">
           <h2 className="text-xl font-bold text-slate-900">Gabung ke Tim</h2>
           <p className="text-sm text-slate-500 leading-relaxed">
-            Sudah memiliki tim? Masukkan kode undangan 6 digit yang diberikan
-            oleh ketua tim Anda untuk bergabung ke dalam ruang kerja mereka.
+            Sudah memiliki tim? Masukkan kode undangan yang diberikan oleh ketua
+            tim Anda untuk bergabung ke dalam ruang kerja mereka.
           </p>
         </div>
 
@@ -47,16 +49,21 @@ export default function JoinTeamCard({ onJoin }: JoinTeamCardProps) {
               id="teamCode"
               value={teamCode}
               onChange={(e) => setTeamCode(e.target.value)}
-              placeholder="MISAL: A1B2C3"
-              className="h-11 border-slate-200 bg-slate-50 focus-visible:ring-[#1a0b8c] uppercase font-medium flex-1"
-              maxLength={6}
+              placeholder="MISAL: uq81hq71"
+              disabled={isPending}
+              className="h-11 border-slate-200 bg-slate-50 focus-visible:ring-[#2F2FE4] uppercase font-medium flex-1 disabled:opacity-50"
             />
             <Button
               onClick={handleJoin}
+              disabled={!teamCode.trim() || isPending}
               variant="outline"
-              className="h-11 px-8 border-[#1a0b8c] text-[#1a0b8c] hover:bg-indigo-50 font-semibold rounded-lg shrink-0"
+              className="h-11 px-8 border-[#2F2FE4] text-[#1a0b8c] hover:bg-indigo-50 font-semibold rounded-lg shrink-0 disabled:opacity-50"
             >
-              Gabung
+              {isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Gabung"
+              )}
             </Button>
           </div>
         </div>

@@ -1,59 +1,155 @@
+// app/(dashboard)/dashboard/team/page.tsx
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import CreateTeamCard from "@/components/features/dashboard/team/CreateTeamCard";
-import JoinTeamCard from "@/components/features/dashboard/team/JoinTeamCard";
 import Image from "next/image";
 import maskotIITC from "@/public/Maskot2.svg";
+import { toast } from "sonner";
+
+import CreateTeamCard from "@/components/features/dashboard/team/CreateTeamCard";
+import JoinTeamCard from "@/components/features/dashboard/team/JoinTeamCard";
 import CreateTeamModal from "@/components/features/dashboard/team/CreateTeamModal";
 import ActiveTeamDashboard from "@/components/features/dashboard/team/ActiveTeamDashboard";
 
-export default function TeamPage() {
+// Hooks
+import { useMyCompetitions } from "@/features/team/hooks/use-my-competitions";
+import { useMyTeam } from "@/features/team/hooks/use-my-team";
+import {
+  useJoinTeam,
+  getJoinTeamErrorMessage,
+} from "@/features/team/hooks/use-join-team"; // IMPORT HOOK JOIN TEAM
+import {
+  useDeleteTeam,
+  useLeaveTeam,
+  useRemoveMember,
+  getManageTeamErrorMessage,
+} from "@/features/team/hooks/use-manage-team";
+
+import { useProfile } from "@/features/profile/hooks/use-profile";
+
+function TeamPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const competitionSlug = searchParams.get("competitionSlug");
+
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
 
-  // State untuk melacak Data Tim dan Role
-  const [activeTeam, setActiveTeam] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<"leader" | "member" | null>(null);
+  // 1. Ambil data profil user untuk menentukan email (Leader / Member)
+  const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
+  const userEmail = profileResponse?.data?.user?.email;
 
-  // Trigger saat user sukses membuat tim (Menjadi Ketua)
-  const handleTeamCreated = (teamName: string) => {
-    setActiveTeam(teamName);
-    setUserRole("leader");
+  // 2. Cek apakah user punya tim (dari summary data)
+  const { data: myTeamsSummary, isLoading: isSummaryLoading } =
+    useMyCompetitions();
+
+  let hasTeam = false;
+  if (Array.isArray(myTeamsSummary)) {
+    hasTeam = myTeamsSummary.length > 0;
+  } else if (myTeamsSummary && typeof myTeamsSummary === "object") {
+    const summaryData = myTeamsSummary as { data?: unknown[] };
+    hasTeam = Array.isArray(summaryData.data) && summaryData.data.length > 0;
+  }
+
+  // 3. Jika punya tim, Fetch data detailnya
+  const { data: teamDetailResponse, isLoading: isDetailLoading } =
+    useMyTeam(hasTeam);
+
+  const teamDetail = teamDetailResponse?.data;
+  const team = teamDetail?.team;
+  const members = team?.members;
+  const competition = team?.competition?.name;
+
+  // Hooks Mutasi
+  const deleteMutation = useDeleteTeam();
+  const leaveMutation = useLeaveTeam();
+  const removeMutation = useRemoveMember();
+  const joinMutation = useJoinTeam(); // INISIALISASI MUTASI JOIN TEAM
+
+  const leaderEmail = team?.leader?.email?.toLowerCase().trim();
+  const activeUserEmail = userEmail?.toLowerCase().trim();
+
+  const role: "leader" | "member" =
+    leaderEmail && activeUserEmail && leaderEmail === activeUserEmail
+      ? "leader"
+      : "member";
+
+  const handleTeamCreated = () => router.replace("/dashboard/team");
+
+  // FUNGSI UTAMA KETIKA TOMBOL GABUNG DIKLIK
+  const handleTeamJoined = (code: string) => {
+    joinMutation.mutate(
+      { code },
+      {
+        onSuccess: () => {
+          toast.success("Berhasil bergabung ke dalam tim!");
+        },
+        onError: (error) => {
+          toast.error(getJoinTeamErrorMessage(error));
+        },
+      },
+    );
   };
 
-  // Trigger saat user memasukkan kode dan sukses gabung (Menjadi Anggota)
-  const handleTeamJoined = (teamCode: string) => {
-    setActiveTeam("Majapahit Tech");
-    setUserRole("member");
-  };
-
-  // Fungsi saat user berhasil keluar dari tim
   const handleLeaveTeam = () => {
-    // Reset state kembali ke null agar tampilan kembali seperti awal
-    setActiveTeam(null);
-    setUserRole(null);
+    leaveMutation.mutate(undefined, {
+      onSuccess: () => toast.success("Berhasil keluar dari tim."),
+      onError: (error) => toast.error(getManageTeamErrorMessage(error)),
+    });
   };
+
+  const handleDeleteTeam = () => {
+    deleteMutation.mutate(undefined, {
+      onSuccess: () => toast.success("Tim berhasil dihapus."),
+      onError: (error) => toast.error(getManageTeamErrorMessage(error)),
+    });
+  };
+
+  const handleRemoveMember = (memberId: string | number) => {
+    removeMutation.mutate(memberId, {
+      onSuccess: () => toast.success("Anggota berhasil dikeluarkan."),
+      onError: (error) => toast.error(getManageTeamErrorMessage(error)),
+    });
+  };
+
+  if (isSummaryLoading || isDetailLoading || isProfileLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] text-slate-400 text-sm">
+        Memuat data...
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center overflow-hidden">
-      {!activeTeam && (
+      {!hasTeam && (
         <CreateTeamModal
           isOpen={isCreateTeamOpen}
           onClose={() => setIsCreateTeamOpen(false)}
           onCreateTeam={handleTeamCreated}
+          competitionSlug={competitionSlug}
         />
       )}
-
-      {activeTeam && userRole ? (
-        // DASHBOARD TIM AKTIF
+      {hasTeam && team ? (
         <ActiveTeamDashboard
-          teamName={activeTeam}
-          role={userRole}
-          onLeaveTeam={handleLeaveTeam} // Kirimkan fungsi reset ke komponen ini
+          teamName={team.name}
+          role={role}
+          teamCode={team.code}
+          competitionName={competition?.name}
+          leader={team.leader}
+          members={members}
+          currentUserEmail={userEmail} // <-- TERUSKAN EMAIL INI KE DASHBOARD
+          onLeaveTeam={handleLeaveTeam}
+          onDeleteTeam={handleDeleteTeam}
+          onRemoveMember={handleRemoveMember}
+          isPendingAction={
+            deleteMutation.isPending ||
+            leaveMutation.isPending ||
+            removeMutation.isPending
+          }
         />
       ) : (
-        // TAMPILAN AWAL SEBELUM PUNYA TIM
         <>
           <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-[0.03] pointer-events-none z-0 flex items-center justify-center">
             <div className="w-full h-full rounded-full flex items-center justify-center">
@@ -82,13 +178,34 @@ export default function TeamPage() {
               </p>
             </div>
 
+            {!competitionSlug && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+                Anda belum memilih lomba. Silakan pilih lomba terlebih dahulu
+                dari halaman Dashboard sebelum membuat tim baru.
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-              <CreateTeamCard onClick={() => setIsCreateTeamOpen(true)} />
-              <JoinTeamCard onJoin={handleTeamJoined} />
+              <CreateTeamCard
+                onClick={() => setIsCreateTeamOpen(true)}
+                disabled={!competitionSlug}
+              />
+              <JoinTeamCard
+                onJoin={handleTeamJoined}
+                isPending={joinMutation.isPending}
+              />
             </div>
           </motion.div>
         </>
       )}
     </div>
+  );
+}
+
+export default function TeamPage() {
+  return (
+    <Suspense fallback={null}>
+      <TeamPageContent />
+    </Suspense>
   );
 }
