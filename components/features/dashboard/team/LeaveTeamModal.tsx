@@ -13,7 +13,7 @@ export default function LeaveTeamModal({
 }: LeaveTeamModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
+      <DialogContent className="sm:max-w-120 p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
         <DialogTitle className="hidden">Konfirmasi Keluar Tim</DialogTitle>
 
         <div className="space-y-4">
@@ -23,7 +23,7 @@ export default function LeaveTeamModal({
           </div>
 
           <p className="text-slate-600 text-sm md:text-base leading-relaxed">
-            Apakah Anda yakin ingin keluar dari Tim Majapahit Tech? Tindakan ini
+            Apakah Anda yakin ingin keluar dari Tim {teamName}? Tindakan ini
             tidak dapat dibatalkan dan Anda harus diundang atau memasukan kode
             kembali untuk bergabung.
           </p>

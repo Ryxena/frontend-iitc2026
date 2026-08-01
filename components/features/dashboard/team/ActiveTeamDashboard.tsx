@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Key, Copy, UserPlus, Star, LogOut, Info, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -9,6 +10,154 @@ import { Button } from "@/components/ui/button";
 import RemoveMemberModal from "@/components/features/dashboard/team/RemoveMemberModal";
 import LeaveTeamModal from "@/components/features/dashboard/team/LeaveTeamModal";
 import { ActiveTeamDashboardProps } from "@/types/index";
+
+const TEAM_MAX_SLOTS = 3;
+
+type Member = { id: string | number; name: string; email: string };
+type Leader = { id: number; name: string; email: string; avatar?: string };
+
+// Semua avatar dibangun dengan pola yang sama (dicebear + nama sebagai seed).
+// Dipusatkan di sini biar kalau providernya ganti nanti, cukup ubah 1 tempat.
+function getAvatarUrl(name: string) {
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}&backgroundColor=f1f5f9`;
+}
+
+function Avatar({
+  name,
+  size = "w-20 h-20",
+  className = "",
+}: {
+  name: string;
+  size?: string;
+  className?: string;
+}) {
+  return (
+    // fill butuh parent position:relative dengan ukuran eksplisit — ukuran
+    // itu tetap datang dari Tailwind (size/className), bukan hardcode di sini,
+    // jadi Avatar tetap fleksibel dipakai di berbagai ukuran.
+    <div
+      className={`relative overflow-hidden rounded-full ${size} ${className}`}
+    >
+      <Image
+        src={getAvatarUrl(name)}
+        alt={name}
+        fill
+        sizes="80px"
+        className="object-cover"
+      />
+    </div>
+  );
+}
+
+// --- Sub-komponen POV KETUA TIM -------------------------------------------
+
+function LeaderOwnCard({ leader }: { leader: Leader }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm">
+      <div className="relative mb-4">
+        <div className="w-20 h-20 rounded-full border-[3px] border-[#1a0b8c] overflow-hidden p-0.5">
+          <Avatar
+            name={leader.name}
+            size="w-full h-full"
+            className="rounded-full"
+          />
+        </div>
+        <div className="absolute -top-2 -right-6 bg-[#1a0b8c] text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm border border-white">
+          <Star className="w-3 h-3 fill-current" /> Ketua Tim
+        </div>
+      </div>
+      <h4 className="text-lg font-bold text-slate-900">{leader.name}</h4>
+      <p className="text-sm text-slate-500">{leader.email}</p>
+    </div>
+  );
+}
+
+function RemovableMemberCard({
+  member,
+  isPendingAction,
+  onRemoveClick,
+}: {
+  member: Member;
+  isPendingAction?: boolean;
+  onRemoveClick: (memberId: string | number) => void;
+}) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm">
+      <div className="absolute top-4 right-4 bg-indigo-100 text-[#1a0b8c] text-[10px] font-bold px-3 py-1 rounded-full">
+        Anggota
+      </div>
+      <Avatar name={member.name} className="mb-4" />
+      <h4 className="text-lg font-bold text-slate-900">{member.name}</h4>
+      <p className="text-sm text-slate-500 mb-4">{member.email}</p>
+
+      <div className="w-full border-t border-slate-100 pt-4 flex justify-center">
+        <button
+          disabled={isPendingAction}
+          onClick={() => onRemoveClick(member.id)}
+          className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 cursor-pointer"
+          title="Keluarkan Anggota"
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function EmptySlotCard() {
+  return (
+    <div className="bg-transparent border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-55">
+      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+        <UserPlus className="w-6 h-6 text-slate-400" />
+      </div>
+      <h4 className="text-sm font-bold text-slate-700 mb-1">
+        Menunggu Anggota...
+      </h4>
+      <p className="text-xs text-slate-400">
+        Bagikan kode tim untuk mengundang.
+      </p>
+    </div>
+  );
+}
+
+// --- Sub-komponen POV ANGGOTA ----------------------------------------------
+
+function LeaderDisplayCard({ leader }: { leader: Leader }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm">
+      <Avatar name={leader.name} className="mb-4" />
+      <h4 className="text-lg font-bold text-slate-900 mb-1">{leader.name}</h4>
+      <p className="text-sm text-slate-500 mb-4">{leader.email}</p>
+      <div className="bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-1.5 rounded-full flex items-center gap-1.5">
+        <Star className="w-3.5 h-3.5 text-slate-500 fill-current" /> Ketua Tim
+      </div>
+    </div>
+  );
+}
+
+function TeammateCard({ member, isMe }: { member: Member; isMe: boolean }) {
+  return (
+    <div
+      className={`bg-white rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm ${
+        isMe ? "border-2 border-[#1a0b8c] shadow-md" : "border border-slate-200"
+      }`}
+    >
+      {isMe && (
+        <div className="absolute top-0 right-0 bg-[#1a0b8c] text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg rounded-tr-[14px]">
+          ANDA
+        </div>
+      )}
+      <Avatar name={member.name} className="mb-4" />
+      <h4 className="text-lg font-bold text-slate-900 mb-1">{member.name}</h4>
+      <p className="text-sm text-slate-500 mb-4">{member.email}</p>
+      <div className="bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-1.5 rounded-full">
+        Anggota
+      </div>
+    </div>
+  );
+}
+
+// --- Komponen utama ---------------------------------------------------------
 
 export default function ActiveTeamDashboard({
   teamName,
@@ -25,8 +174,8 @@ export default function ActiveTeamDashboard({
 }: ActiveTeamDashboardProps & {
   competitionName?: string;
   teamCode?: string;
-  leader?: { id: number; name: string; email: string; avatar?: string };
-  members?: Array<{ id: string | number; name: string; email: string }>;
+  leader?: Leader;
+  members?: Member[];
   currentUserEmail?: string;
   onRemoveMember?: (memberId: string | number) => void;
   onDeleteTeam?: () => void;
@@ -38,15 +187,20 @@ export default function ActiveTeamDashboard({
     string | number | null
   >(null);
 
+  const isLeader = role === "leader";
+
   const handleCopyCode = () => {
-    if (teamCode) {
-      navigator.clipboard.writeText(teamCode);
-      toast.success("Kode undangan berhasil disalin!");
-    }
+    if (!teamCode) return;
+    navigator.clipboard.writeText(teamCode);
+    toast.success("Kode undangan berhasil disalin!");
+  };
+
+  const handleRemoveClick = (memberId: string | number) => {
+    setSelectedMemberId(memberId);
+    setIsRemoveModalOpen(true);
   };
 
   const handleConfirmRemove = () => {
-    console.log(selectedMemberId);
     if (selectedMemberId && onRemoveMember) {
       onRemoveMember(selectedMemberId);
     }
@@ -56,7 +210,7 @@ export default function ActiveTeamDashboard({
 
   const handleConfirmLeaveOrDelete = () => {
     setIsLeaveModalOpen(false);
-    if (role === "leader" && onDeleteTeam) {
+    if (isLeader && onDeleteTeam) {
       onDeleteTeam();
     } else {
       onLeaveTeam();
@@ -64,8 +218,7 @@ export default function ActiveTeamDashboard({
   };
 
   const totalOccupied = (leader ? 1 : 0) + members.length;
-  const maxSlots = 3;
-  const emptySlotsCount = Math.max(0, maxSlots - totalOccupied);
+  const emptySlotsCount = Math.max(0, TEAM_MAX_SLOTS - totalOccupied);
 
   return (
     <>
@@ -105,14 +258,14 @@ export default function ActiveTeamDashboard({
             Team {teamName}
           </h1>
           <p className="text-slate-500 text-sm md:text-base">
-            {role === "leader"
+            {isLeader
               ? "Kelola anggota tim Anda untuk mempersiapkan kompetisi."
               : "Kelola keanggotaan dan lihat informasi tim Anda."}
           </p>
         </div>
 
         {/* SECTION: KODE UNDANGAN (KHUSUS KETUA TIM) */}
-        {role === "leader" && (
+        {isLeader && (
           <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm">
             <div className="space-y-4 max-w-lg">
               <div className="flex items-center gap-2 text-slate-900">
@@ -146,166 +299,40 @@ export default function ActiveTeamDashboard({
         {/* SECTION: DAFTAR ANGGOTA TIM */}
         <div className="space-y-4">
           <h3 className="font-bold text-lg text-slate-900">
-            {role === "leader"
-              ? `Anggota Tim (${totalOccupied}/${maxSlots})`
+            {isLeader
+              ? `Anggota Tim (${totalOccupied}/${TEAM_MAX_SLOTS})`
               : "Anggota Tim"}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* =========================================================
-                RENDER UNTUK POV KETUA TIM (LEADER VIEW)
-               ========================================================= */}
-            {role === "leader" && (
+            {isLeader ? (
               <>
-                {/* 1. Card Ketua */}
-                {leader && (
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm">
-                    <div className="relative mb-4">
-                      <div className="w-20 h-20 rounded-full border-[3px] border-[#1a0b8c] overflow-hidden p-0.5">
-                        <img
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${leader.name}&backgroundColor=f1f5f9`}
-                          alt={leader.name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </div>
-                      <div className="absolute -top-2 -right-6 bg-[#1a0b8c] text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm border border-white">
-                        <Star className="w-3 h-3 fill-current" /> Ketua Tim
-                      </div>
-                    </div>
-                    <h4 className="text-lg font-bold text-slate-900">
-                      {leader.name}
-                    </h4>
-                    <p className="text-sm text-slate-500">{leader.email}</p>
-                  </div>
-                )}
+                {leader && <LeaderOwnCard leader={leader} />}
 
-                {/* 2. Card Anggota */}
                 {members.map((member) => (
-                  <div
+                  <RemovableMemberCard
                     key={member.id}
-                    className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm"
-                  >
-                    <div className="absolute top-4 right-4 bg-indigo-100 text-[#1a0b8c] text-[10px] font-bold px-3 py-1 rounded-full">
-                      Anggota
-                    </div>
-                    <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
-                      <img
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}&backgroundColor=f1f5f9`}
-                        alt={member.name}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    </div>
-                    <h4 className="text-lg font-bold text-slate-900">
-                      {member.name}
-                    </h4>
-                    <p className="text-sm text-slate-500 mb-4">
-                      {member.email}
-                    </p>
-
-                    <div className="w-full border-t border-slate-100 pt-4 flex justify-center">
-                      <button
-                        disabled={isPendingAction}
-                        onClick={() => {
-                          setSelectedMemberId(member.id);
-                          setIsRemoveModalOpen(true);
-                        }}
-                        className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 cursor-pointer"
-                        title="Keluarkan Anggota"
-                      >
-                        <LogOut className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
+                    member={member}
+                    isPendingAction={isPendingAction}
+                    onRemoveClick={handleRemoveClick}
+                  />
                 ))}
 
-                {/* 3. Slot Kosong (Menunggu Anggota) */}
                 {Array.from({ length: emptySlotsCount }).map((_, index) => (
-                  <div
-                    key={`empty-slot-${index}`}
-                    className="bg-transparent border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[220px]"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                      <UserPlus className="w-6 h-6 text-slate-400" />
-                    </div>
-                    <h4 className="text-sm font-bold text-slate-700 mb-1">
-                      Menunggu Anggota...
-                    </h4>
-                    <p className="text-xs text-slate-400">
-                      Bagikan kode tim untuk mengundang.
-                    </p>
-                  </div>
+                  <EmptySlotCard key={`empty-slot-${index}`} />
                 ))}
               </>
-            )}
-
-            {/* =========================================================
-                RENDER UNTUK POV ANGGOTA (MEMBER VIEW)
-               ========================================================= */}
-            {role === "member" && (
+            ) : (
               <>
-                {/* 1. Render Card Ketua Tim */}
-                {leader && (
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm">
-                    <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
-                      <img
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${leader.name}&backgroundColor=f1f5f9`}
-                        alt={leader.name}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    </div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-1">
-                      {leader.name}
-                    </h4>
-                    <p className="text-sm text-slate-500 mb-4">
-                      {leader.email}
-                    </p>
-                    <div className="bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-1.5 rounded-full flex items-center gap-1.5">
-                      <Star className="w-3.5 h-3.5 text-slate-500 fill-current" />{" "}
-                      Ketua Tim
-                    </div>
-                  </div>
-                )}
+                {leader && <LeaderDisplayCard leader={leader} />}
 
-                {/* 2. Render Card Semua Anggota (termasuk User yang sedang login) */}
                 {members.map((member) => {
                   const isMe =
                     member.email?.toLowerCase().trim() ===
                     currentUserEmail?.toLowerCase().trim();
 
                   return (
-                    <div
-                      key={member.id}
-                      className={`bg-white rounded-2xl p-6 flex flex-col items-center text-center relative shadow-sm ${
-                        isMe
-                          ? "border-2 border-[#1a0b8c] shadow-md"
-                          : "border border-slate-200"
-                      }`}
-                    >
-                      {/* Badge ANDA jika ini akun yang sedang login */}
-                      {isMe && (
-                        <div className="absolute top-0 right-0 bg-[#1a0b8c] text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg rounded-tr-[14px]">
-                          ANDA
-                        </div>
-                      )}
-
-                      <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
-                        <img
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}&backgroundColor=f1f5f9`}
-                          alt={member.name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </div>
-                      <h4 className="text-lg font-bold text-slate-900 mb-1">
-                        {member.name}
-                      </h4>
-                      <p className="text-sm text-slate-500 mb-4">
-                        {member.email}
-                      </p>
-
-                      <div className="bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-1.5 rounded-full">
-                        Anggota
-                      </div>
-                    </div>
+                    <TeammateCard key={member.id} member={member} isMe={isMe} />
                   );
                 })}
               </>
@@ -314,7 +341,7 @@ export default function ActiveTeamDashboard({
         </div>
 
         {/* SECTION: PEMBERITAHUAN / ZONA BAHAYA */}
-        {role === "leader" ? (
+        {isLeader ? (
           <div className="bg-[#fff8f3] border border-[#ffdac1] rounded-xl p-5 flex items-start gap-3">
             <Info className="w-5 h-5 text-[#d97706] shrink-0 mt-0.5" />
             <div>

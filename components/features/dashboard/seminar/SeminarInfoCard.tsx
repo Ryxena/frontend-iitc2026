@@ -1,4 +1,3 @@
-// components/features/dashboard/SeminarInfoCard.tsx
 import { Calendar, MapPin, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,14 +5,19 @@ import { SeminarInfoCardProps } from "@/types";
 import Image from "next/image";
 import posterSeminar from "@/public/seminar-iitc2026.png";
 
+// Ambil dari file .env, berikan fallback URL jika belum diset
+const DEFAULT_GFORM_URL =
+  process.env.NEXT_PUBLIC_SEMINAR_GFORM_URL ??
+  "https://iitc.intermediaamikom.org/";
+
 export default function SeminarInfoCard({
-  gformUrl = "https://forms.gle/contoh-link-gform",
+  gformUrl = DEFAULT_GFORM_URL,
 }: SeminarInfoCardProps) {
   return (
     <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
       <CardContent className="p-0 grid grid-cols-1 lg:grid-cols-2">
         {/* Kolom Kiri: Foto Pembicara dari Poster */}
-        <div className="bg-linear-to-br rounded-2xl ml-5 from-amber-500 to-orange-600 p-6 flex flex-col items-center justify-center relative min-h-80 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-200">
+        <div className="bg-linear-to-br from-amber-500 to-orange-600 p-6 flex flex-col items-center justify-center relative min-h-80 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-200">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size[16px_16px]"></div>
 
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
@@ -89,7 +93,7 @@ export default function SeminarInfoCard({
               rel="noopener noreferrer"
               className="inline-block w-full sm:w-auto"
             >
-              <Button className="w-full sm:w-auto bg-primary hover:bg-[#13076b] text-white font-medium px-6 h-11 rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors">
+              <Button className="w-full sm:w-auto bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-6 h-11 rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors">
                 Daftar Seminar Sekarang <ExternalLink className="w-4 h-4" />
               </Button>
             </a>

@@ -24,10 +24,6 @@ export default function CreateTeamCard({
         pengumpulan karya.
       </p>
 
-      {/* disabled kalau user belum pilih lomba dari halaman Dashboard —
-          endpoint create team butuh competitionSlug, jadi mencegah user
-          nyasar ke sini tanpa itu lebih baik daripada biarin klik lalu
-          gagal pas submit. */}
       <Button
         onClick={onClick}
         disabled={disabled}

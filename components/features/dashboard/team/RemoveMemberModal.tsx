@@ -13,7 +13,7 @@ export default function RemoveMemberModal({
 }: RemoveMemberModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
+      <DialogContent className="sm:max-w-120 p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
         <DialogTitle className="hidden">
           Konfirmasi Keluarkan Anggota
         </DialogTitle>

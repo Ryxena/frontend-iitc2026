@@ -61,7 +61,7 @@ export default function CreateTeamModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
-      <DialogContent className="sm:max-w-[480px] p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
+      <DialogContent className="sm:max-w-120 p-8 rounded-2xl border-none shadow-xl bg-white [&>button]:hidden">
         <DialogTitle className="hidden">Buat Tim Baru</DialogTitle>
 
         <div className="space-y-6">

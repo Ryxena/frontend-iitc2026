@@ -1,4 +1,3 @@
-// components/features/dashboard/team/JoinTeamCard.tsx
 "use client";
 
 import { useState } from "react";
@@ -15,11 +14,11 @@ interface JoinTeamCardProps {
 
 export default function JoinTeamCard({ onJoin, isPending }: JoinTeamCardProps) {
   const [teamCode, setTeamCode] = useState("");
+  const trimmedCode = teamCode.trim();
 
   const handleJoin = () => {
-    if (teamCode.trim().length > 0 && onJoin) {
-      onJoin(teamCode.trim());
-    }
+    if (!trimmedCode) return;
+    onJoin(trimmedCode);
   };
 
   return (
@@ -55,7 +54,7 @@ export default function JoinTeamCard({ onJoin, isPending }: JoinTeamCardProps) {
             />
             <Button
               onClick={handleJoin}
-              disabled={!teamCode.trim() || isPending}
+              disabled={!trimmedCode || isPending}
               variant="outline"
               className="h-11 px-8 border-[#2F2FE4] text-[#1a0b8c] hover:bg-indigo-50 font-semibold rounded-lg shrink-0 disabled:opacity-50"
             >

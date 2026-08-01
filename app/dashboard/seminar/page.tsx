@@ -11,7 +11,6 @@ export default function SeminarPage() {
       transition={{ duration: 0.4 }}
       className="w-full max-w-5xl mx-auto space-y-8 pb-12"
     >
-      {/* Header Page */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">
           Pendaftaran Seminar
@@ -21,10 +20,7 @@ export default function SeminarPage() {
         </p>
       </div>
 
-      {/* Seminar Info Card */}
       <SeminarInfoCard />
-
-      {/* Registration Form Card */}
     </motion.div>
   );
 }
