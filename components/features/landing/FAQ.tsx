@@ -27,6 +27,62 @@ const faqData = [
     answer:
       "Ya, biaya pendaftaran bervariasi tergantung kategori kompetisi. Detail biaya dapat dilihat pada kartu kategori kompetisi di atas.",
   },
+  {
+    question: "Apakah peserta boleh mengikuti lebih dari satu lomba?",
+    answer: "Tidak boleh. Setiap peserta hanya diperkenankan mengikuti satu cabang perlombaan.",
+  },
+  {
+    question: "Bagaimana mekanisme pengumpulan hasil karya?",
+    answer: "Pengumpulan hasil karya dilakukan melalui dashboard peserta pada menu Submission setelah tim dinyatakan resmi terdaftar dan telah menyelesaikan administrasi/pembayaran.",
+  },
+  {
+    question: "Apa format file untuk pengumpulan hasil karya?",
+    answer: "Pengumpulan hasil karya diunggah dalam bentuk link Google Drive (pastikan akses link diset ke 'Anyone with the link can view').",
+  },
+  {
+    question: "Bagaimana cara juri menilai hasil karya?",
+    answer: "Juri menilai hasil karya berdasarkan kriteria yang telah ditetapkan secara objektif dan konsisten. Detail rubrik penilaian dan daftar juri dapat dilihat pada Guide Book perlombaan.",
+  },
+  {
+    question: "Bagaimana cara membayar biaya pendaftarannya?",
+    answer: (
+      <>
+        Pembayaran biaya pendaftaran dapat ditransfer ke rekening/e-wallet berikut:
+        <ul className="list-disc pl-5 pt-2 pb-6 space-y-1">
+          <li>BRI a.n Maylinda Eka Saputri (683901020736507)</li>
+          <li>GOPAY a.n Maylinda Eka Saputri (+62 821-3780-5336)</li>
+          <li>Seabank a.n Tifa Fitriana (901912316510)</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    question: "Adakah kontak yang dapat dihubungi?",
+    answer: (
+      <>
+        Kamu bisa menghubungi kami secara online melalui:
+        <ul className="list-disc pl-5 pt-2 pb-6 space-y-1">
+          <li>
+            Instagram: <a href="https://instagram.com/iitc_intermedia" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">@iitc_intermedia</a>
+          </li>
+          <li>WhatsApp CP 1: Linga (085133711081)</li>
+          <li>WhatsApp CP 2: Lingu (085133711082)</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    question: "Link grup whatsapp nya dimana ya?",
+    answer: "Link grup WhatsApp akan otomatis muncul di halaman dashboard setelah ketua tim melakukan pembayaran dan dikonfirmasi oleh admin.",
+  },
+  {
+    question: "Apakah lomba Web Design harus terhubung ke database dan memiliki sistem backend?",
+    answer: "Tidak. Lomba Web Design hanya berfokus pada Front-End (FE) dan desain (UI/UX). Peserta tidak perlu menghubungkannya ke database atau membuat sistem backend.",
+  },
+  {
+    question: "Apakah wajib melengkapi data profile pada dashboard?",
+    answer: "Ya, setiap peserta wajib melengkapi data profil pada dashboard di menu profile.",
+  },
 ];
 
 export default function FAQ() {

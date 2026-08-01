@@ -12,7 +12,7 @@ export default function Home() {
     <main className="flex flex-col items-center w-full overflow-hidden">
       <Hero />
       <Sponsors />
-      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16 md:space-y-20 py-16">
+      <div className="w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 space-y-16 md:space-y-20 py-16">
         <About />
         <Countdown />
         <Competitions />

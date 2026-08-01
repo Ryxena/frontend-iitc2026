@@ -21,6 +21,7 @@ interface TimelineItem {
   id: string;
   title: string;
   subtitle: string;
+  description: string;
   date: string;
   icon: LucideIcon;
   markerShape: MarkerShape;
@@ -33,6 +34,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "01",
     title: "Pendaftaran",
     subtitle: "Gelombang 1",
+    description: "Pendaftaran awal dengan kuota terbatas.",
     date: "03 Agt - 15 Agt 2026",
     icon: ClipboardCheck,
     markerShape: "diamond",
@@ -43,6 +45,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "02",
     title: "Pendaftaran",
     subtitle: "Gelombang 2",
+    description: "Pendaftaran akhir dengan harga normal.",
     date: "16 Agt - 22 Agt 2026",
     icon: ClipboardCheck,
     markerShape: "circle",
@@ -53,6 +56,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "03",
     title: "Technical Meeting",
     subtitle: "Technical Meeting Peserta",
+    description: "Pengarahan teknis perlombaan secara daring.",
     date: "19 Agustus 2026",
     icon: ShieldCheck,
     markerShape: "diamond",
@@ -63,6 +67,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "04",
     title: "Pendaftaran Seminar",
     subtitle: "Seminar Nasional",
+    description: "Pembukaan tiket acara seminar nasional.",
     date: "25 Agustus 2026",
     icon: Presentation,
     markerShape: "circle",
@@ -73,6 +78,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "05",
     title: "Pengumpulan Karya",
     subtitle: "Online Submission",
+    description: "Batas waktu unggah hasil karya.",
     date: "19 Agt - 27 Agt 2026",
     icon: FileText,
     markerShape: "diamond",
@@ -83,6 +89,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "06",
     title: "Penjurian",
     subtitle: "Proses Penilaian",
+    description: "Penilaian karya oleh dewan juri.",
     date: "28 Agt - 03 Sept 2026",
     icon: Gavel,
     markerShape: "circle",
@@ -93,6 +100,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "07",
     title: "Pengumuman Finalis",
     subtitle: "Top 3 Finalis",
+    description: "Pengumuman finalis terpilih tiap kategori.",
     date: "07 Sept 2026",
     icon: Megaphone,
     markerShape: "diamond",
@@ -103,6 +111,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "08",
     title: "Technical Meeting",
     subtitle: "Finalis Terpilih",
+    description: "Briefing mekanisme presentasi babak final.",
     date: "08 Sept 2026",
     icon: ShieldCheck,
     markerShape: "circle",
@@ -113,6 +122,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "09",
     title: "Seminar & Awarding",
     subtitle: "Penghargaan Offline & Penutupan",
+    description: "Acara puncak dan pembagian hadiah.",
     date: "12 Sept 2026",
     icon: Trophy,
     markerShape: "filled",
@@ -124,9 +134,9 @@ const TIMELINE_DATA: TimelineItem[] = [
 const INITIAL_VISIBLE_COUNT = 3;
 
 const BADGE_STYLES: Record<BadgeVariant, string> = {
-  blue: "border border-blue-200 bg-blue-50 text-blue-700",
-  orange: "border border-orange-200 bg-orange-50 text-orange-600",
-  white: "bg-white text-blue-700",
+  blue: "border border-blue-700 bg-blue-50 text-blue-700",
+  orange: "border border-orange-500 bg-orange-50 text-orange-600",
+  white: "border border-white bg-white text-blue-700",
 };
 
 const MARKER_SHAPE_CLASS: Record<MarkerShape, string> = {
@@ -203,18 +213,28 @@ const TimelineCard = memo(function TimelineCard({
       <Marker item={item} />
 
       <div
-        className={`w-full md:w-1/2 pl-16 md:pl-0 ${
-          item.align === "left" ? "md:pr-12" : "md:pl-12"
+        className={`w-full md:w-1/2 pl-16 md:pl-0 flex ${
+          item.align === "left" ? "md:pr-12 justify-start md:justify-end" : "md:pl-12 justify-start"
         }`}
       >
         <Card
-          className={`shadow-sm hover:shadow-md transition-shadow rounded-2xl ${
+          className={`w-full max-w-[340px] shadow-sm hover:shadow-md transition-shadow rounded-tl-3xl rounded-tr-md rounded-br-3xl rounded-bl-md ${
+            item.align === "left"
+              ? "md:rounded-tl-md md:rounded-tr-3xl md:rounded-br-md md:rounded-bl-3xl"
+              : ""
+          } ${
             item.markerShape === "filled"
               ? "bg-blue-700 border-none shadow-lg"
               : "border-slate-200"
           }`}
         >
-          <CardContent className="p-6">
+          <CardContent
+            className={`p-5 md:p-6 flex flex-col ${
+              item.align === "left"
+                ? "items-start text-left md:items-end md:text-right"
+                : "items-start text-left"
+            }`}
+          >
             <h3
               className={`font-bold text-lg ${
                 item.markerShape === "filled" ? "text-white" : "text-slate-900"
@@ -223,16 +243,31 @@ const TimelineCard = memo(function TimelineCard({
               {item.title}
             </h3>
             <p
-              className={`text-sm mt-0.5 mb-3 ${
+              className={`text-[0.85rem] font-medium mt-0.5 mb-2 ${
                 item.markerShape === "filled"
                   ? "text-blue-100"
-                  : "text-slate-500"
+                  : "text-blue-600"
               }`}
             >
               {item.subtitle}
             </p>
+            
+            <p
+              className={`text-[0.85rem] leading-snug mb-4 ${
+                item.markerShape === "filled"
+                  ? "text-white/90"
+                  : "text-slate-600"
+              }`}
+            >
+              {item.description}
+            </p>
+
             <span
-              className={`inline-block text-xs font-semibold px-3 py-1 rounded-md ${BADGE_STYLES[item.badgeVariant]}`}
+              className={`inline-flex items-center justify-center text-[0.7rem] font-semibold px-4 py-2 rounded-tl-none rounded-tr-2xl rounded-br-none rounded-bl-2xl ${
+                item.align === "left"
+                  ? "md:rounded-tl-2xl md:rounded-tr-none md:rounded-br-2xl md:rounded-bl-none"
+                  : ""
+              } ${BADGE_STYLES[item.badgeVariant]}`}
             >
               {item.date}
             </span>

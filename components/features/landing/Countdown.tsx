@@ -32,39 +32,46 @@ export default function Countdown() {
   }, []);
 
   return (
-    <section className="w-full py-12">
-      <div className="text-center mb-10">
-        <h3 className="text-xl sm:text-2xl font-semibold text-slate-800  inline-block relative pb-2">
+    <section className="w-full py-12 lg:py-20">
+      <div className="text-center mb-12">
+        <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 inline-block relative pb-3">
           Menuju Penutupan Pendaftaran
-          <span className="absolute left-1/2 -translate-x-1/2 bottom-0 w-10 h-0.75 rounded-full bg-indigo-600"></span>
+          <span className="absolute left-1/2 -translate-x-1/2 bottom-0 w-12 h-[3px] rounded-full bg-blue-700"></span>
         </h3>
       </div>
-      <div className="flex justify-center gap-4 sm:gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-10 xl:gap-14 w-full">
         {[
           { label: "HARI", value: timeLeft.days },
           { label: "JAM", value: timeLeft.hours },
           { label: "MENIT", value: timeLeft.minutes },
           { label: "DETIK", value: timeLeft.seconds },
-        ].map((item, idx) => (
-          <motion.div
-            key={item.label}
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: idx * 0.1 }}
-            className="flex flex-col items-center justify-center bg-white border border-slate-200 shadow-sm w-24 h-28 sm:w-40 sm:h-44 rounded-tl-[2rem] rounded-br-[2rem] rounded-tr-md rounded-bl-md"
-          >
-            <span
-              className="text-4xl sm:text-6xl font-bold text-amber-800"
-              suppressHydrationWarning
+        ].map((item, idx) => {
+          const isOdd = idx % 2 === 1;
+          const borderRadiusClass = isOdd
+            ? "rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-md rounded-br-md lg:rounded-tr-[3.5rem] lg:rounded-bl-[3.5rem] lg:rounded-tl-lg lg:rounded-br-lg"
+            : "rounded-tl-[2.5rem] rounded-br-[2.5rem] rounded-tr-md rounded-bl-md lg:rounded-tl-[3.5rem] lg:rounded-br-[3.5rem] lg:rounded-tr-lg lg:rounded-bl-lg";
+
+          return (
+            <motion.div
+              key={item.label}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className={`flex flex-col items-center justify-center bg-white border border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] w-full h-28 sm:h-36 lg:h-[11rem] xl:h-[12.5rem] ${borderRadiusClass}`}
             >
-              {item.value.toString().padStart(2, "0")}
-            </span>
-            <span className="text-xs sm:text-sm font-medium text-slate-400 mt-3 tracking-widest">
-              {item.label}
-            </span>
-          </motion.div>
-        ))}
+              <span
+                className="text-4xl sm:text-6xl lg:text-[5.5rem] xl:text-[6.5rem] font-bold text-[#8C4B21] leading-none mb-2 lg:mb-4"
+                suppressHydrationWarning
+              >
+                {item.value.toString().padStart(2, "0")}
+              </span>
+              <span className="text-[11px] sm:text-xs lg:text-sm xl:text-base font-bold text-slate-500 tracking-[0.2em] lg:tracking-[0.25em] uppercase">
+                {item.label}
+              </span>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   );
