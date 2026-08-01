@@ -200,3 +200,8 @@ export interface ProfileResponse {
   message: string;
   data: UserProfile; // Sesuaikan dengan struktur JSON dari Laravel
 }
+
+// seminar
+export interface SeminarInfoCardProps {
+  gformUrl?: string; // Props opsional untuk link GForm
+}

@@ -9,16 +9,41 @@ import PaymentStatus from "@/components/features/dashboard/payment/PaymentStatus
 import PaymentMethod from "@/components/features/dashboard/payment/PaymentMethod";
 import UploadProof from "@/components/features/dashboard/payment/UploadProof";
 import PaymentInstructions from "@/components/features/dashboard/payment/PaymentInstructions";
+import WhatsAppGroupCard from "@/components/features/dashboard/payment/WhatsAppGroupCard";
 
 // Import hooks
 import { usePaymentStatus } from "@/features/payment/hooks/use-payment-status";
 import { useMyTeam } from "@/features/team/hooks/use-my-team";
 
+// Status yang dianggap "lolos verifikasi"
+const VERIFIED_STATUSES = ["VALID", "ACCEPTED", "SUCCESS"];
+
+// Fungsi helper untuk mencocokkan nama lomba dengan link grup WhatsApp
+const getWhatsAppGroupUrl = (competitionName?: string) => {
+  if (!competitionName) return "#";
+  const name = competitionName.toLowerCase();
+
+  if (name.includes("web design") || name.includes("webdesign")) {
+    return "https://chat.whatsapp.com/GPk3ial29LvHRkYGdNmIe3";
+  }
+  if (name.includes("ui/ux") || name.includes("uiux") || name.includes("ui")) {
+    return "https://chat.whatsapp.com/HgPrSs3uZ32AYGCE8myQh4";
+  }
+  if (
+    name.includes("gen ai") ||
+    name.includes("genai") ||
+    name.includes("ai")
+  ) {
+    return "https://chat.whatsapp.com/HA3xyTpiNnuIsCPQFwEY3C";
+  }
+  return "#"; // Fallback jika tidak cocok
+};
+
 export default function PaymentPage() {
   const { data: statusResponse, isLoading: isStatusLoading } =
     usePaymentStatus();
 
-  // Ambil detail tim untuk mendapatkan harga kompetisi (true agar memicu fetch)
+  // Ambil detail tim untuk mendapatkan informasi kompetisi
   const { data: teamDetailResponse, isLoading: isTeamLoading } =
     useMyTeam(true);
 
@@ -27,8 +52,17 @@ export default function PaymentPage() {
   const currentStatus = paymentData?.status;
   const rejectReason = paymentData?.reason;
 
-  // Data Harga Lomba (Sesuaikan .price atau .fee dengan nama field dari API Laravel Anda)
-  const competitionPrice = teamDetailResponse?.data?.team?.competition?.price;
+  const isPaymentVerified = VERIFIED_STATUSES.includes(
+    currentStatus?.toUpperCase() ?? "",
+  );
+
+  // Data Kompetisi & Harga Lomba
+  const competition = teamDetailResponse?.data?.team?.competition;
+  const competitionName = competition?.name || competition?.title || "";
+  const competitionPrice = competition?.price;
+
+  // Tentukan link WhatsApp berdasarkan nama kompetisi tim
+  const whatsappGroupUrl = getWhatsAppGroupUrl(competitionName);
 
   if (isStatusLoading || isTeamLoading) {
     return (
@@ -62,7 +96,12 @@ export default function PaymentPage() {
           <div className="lg:col-span-2 space-y-6">
             <PaymentStatus status={currentStatus} reason={rejectReason} />
 
-            {/* Grid Kartu Metode Pembayaran disesuaikan menjadi 3 buah */}
+            {/* WhatsApp Card muncul otomatis dengan link sesuai lomba setelah terverifikasi */}
+            {isPaymentVerified && (
+              <WhatsAppGroupCard groupUrl={whatsappGroupUrl} />
+            )}
+
+            {/* Grid Kartu Metode Pembayaran */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
               <PaymentMethod
                 title="E-Wallet"
@@ -79,7 +118,6 @@ export default function PaymentPage() {
                 icon={Landmark}
               />
 
-              {/* Tambahkan div md:col-span-2 di sini agar memanjang di desktop */}
               <div className="md:col-span-2">
                 <PaymentMethod
                   title="Transfer Bank"
@@ -96,7 +134,6 @@ export default function PaymentPage() {
 
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              {/* TERUSKAN HARGA LOMBA KE KOMPONEN INI */}
               <PaymentInstructions fee={competitionPrice} />
             </div>
           </div>

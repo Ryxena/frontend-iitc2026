@@ -29,7 +29,7 @@ const menuItems = [
   { icon: Wallet, label: "Pembayaran", href: "/dashboard/payment" },
   { icon: CloudUpload, label: "Unggah Karya", href: "/dashboard/submission" },
   { icon: GraduationCap, label: "Seminar", href: "/dashboard/seminar" },
-  { icon: BadgeCheck, label: "Sertifikat", href: "/dashboard/sertificate" },
+  // { icon: BadgeCheck, label: "Sertifikat", href: "/dashboard/sertificate" },
 ];
 
 // Isi sidebar dipisah jadi komponen sendiri supaya bisa dipakai ulang

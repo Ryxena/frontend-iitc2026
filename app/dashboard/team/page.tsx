@@ -136,7 +136,7 @@ function TeamPageContent() {
           teamName={team.name}
           role={role}
           teamCode={team.code}
-          competitionName={competition?.name}
+          competitionName={competition}
           leader={team.leader}
           members={members}
           currentUserEmail={userEmail} // <-- TERUSKAN EMAIL INI KE DASHBOARD
