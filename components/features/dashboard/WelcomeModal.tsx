@@ -7,10 +7,15 @@ import { ArrowRight } from "lucide-react";
 import ProfileFormModal from "@/components/features/dashboard/ProfileFormModal";
 import Image from "next/image";
 import maskotIITC from "@/public/Maskot2.svg";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 
 export default function WelcomeModal() {
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { data: profileResponse, isLoading } = useProfile();
+
+  const user = profileResponse?.data?.user;
+  const userName = user?.name || (user as any)?.fullName;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,7 +48,11 @@ export default function WelcomeModal() {
             </div>
             <div className="space-y-2">
               <h2 className="text-2xl font-bold text-slate-900">
-                Halo, Ahmad!
+                {isLoading ? (
+                  <span className="inline-block w-36 h-7 bg-slate-200 animate-pulse rounded-md" />
+                ) : (
+                  `Halo, ${userName || "Peserta"}!`
+                )}
               </h2>
               <p className="text-slate-500 text-sm leading-relaxed max-w-[280px] mx-auto">
                 Silakan lengkapi profil Anda terlebih dahulu untuk mulai

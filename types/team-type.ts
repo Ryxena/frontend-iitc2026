@@ -95,7 +95,11 @@ export interface ActiveTeamDashboardProps {
   role: "leader" | "member";
   userEmail?: string;
   onLeaveTeam: () => void;
+  onDeleteTeam?: () => void;
+  isActionLoading?: boolean;
+  actionError?: string | null;
 }
+
 
 export interface ApiErrorResponse {
   message: string;

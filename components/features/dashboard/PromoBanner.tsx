@@ -27,7 +27,7 @@ export default function PromoBanner({ onIkutiLombaClick }: PromoBannerProps) {
 
         <p className="text-slate-600 leading-relaxed">
           Pilih kategori lomba yang sesuai dengan minat dan keahlian tim Anda.
-          Terdapat 4 kategori kompetisi teknologi bergengsi tahun ini.
+          Terdapat 3 kategori kompetisi teknologi bergengsi tahun ini.
         </p>
 
         {/* 2. Hubungkan event onClick ke prop onIkutiLombaClick */}

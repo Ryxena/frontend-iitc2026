@@ -12,6 +12,8 @@ import CreateTeamModal from "@/components/features/dashboard/team/CreateTeamModa
 import ActiveTeamDashboard from "@/components/features/dashboard/team/ActiveTeamDashboard";
 import { useMyTeam } from "@/features/team/hooks/use-my-team";
 import { useJoinTeam, getJoinTeamErrorMessage } from "@/features/team/hooks/use-join-team";
+import { useLeaveTeam, getLeaveTeamErrorMessage } from "@/features/team/hooks/use-leave-team";
+import { useDeleteTeam, getDeleteTeamErrorMessage } from "@/features/team/hooks/use-delete-team";
 import { useProfile } from "@/features/profile/hooks/use-profile";
 import type { Team } from "@/types/index";
 
@@ -33,11 +35,14 @@ function TeamPageContent() {
 
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const { data: myTeamResponse, isLoading: isLoadingMyTeam, refetch: refetchMyTeam } = useMyTeam();
   const teamDetail = myTeamResponse?.data?.team ?? null;
 
   const joinTeamMutation = useJoinTeam();
+  const leaveTeamMutation = useLeaveTeam();
+  const deleteTeamMutation = useDeleteTeam();
 
   const { data: profileData } = useProfile();
   const userEmail = profileData?.data?.user?.email;
@@ -80,9 +85,33 @@ function TeamPageContent() {
   };
 
   const handleLeaveTeam = () => {
-    if (teamDetail) {
-      sessionStorage.removeItem(`team-role:${teamDetail.id}`);
-    }
+    setActionError(null);
+    leaveTeamMutation.mutate(undefined, {
+      onSuccess: () => {
+        if (teamDetail) {
+          sessionStorage.removeItem(`team-role:${teamDetail.id}`);
+        }
+        refetchMyTeam();
+      },
+      onError: (err) => {
+        setActionError(getLeaveTeamErrorMessage(err));
+      },
+    });
+  };
+
+  const handleDeleteTeam = () => {
+    setActionError(null);
+    deleteTeamMutation.mutate(undefined, {
+      onSuccess: () => {
+        if (teamDetail) {
+          sessionStorage.removeItem(`team-role:${teamDetail.id}`);
+        }
+        refetchMyTeam();
+      },
+      onError: (err) => {
+        setActionError(getDeleteTeamErrorMessage(err));
+      },
+    });
   };
 
   if (isLoadingMyTeam) {
@@ -110,6 +139,9 @@ function TeamPageContent() {
           role={derivedRole}
           userEmail={userEmail}
           onLeaveTeam={handleLeaveTeam}
+          onDeleteTeam={handleDeleteTeam}
+          isActionLoading={leaveTeamMutation.isPending || deleteTeamMutation.isPending}
+          actionError={actionError}
         />
       ) : (
         <>

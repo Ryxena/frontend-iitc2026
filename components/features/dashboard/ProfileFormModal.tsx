@@ -1,32 +1,201 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-// Tambahkan icon X dari lucide-react
-import { Image as ImageIcon, UploadCloud, X } from "lucide-react";
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  X,
+  UploadCloud,
+  Image as ImageIcon,
+} from "lucide-react";
+
+import {
+  updateProfileSchema,
+  type UpdateProfileSchemaInput,
+} from "@/lib/schemas/profile.schema";
+import { useUpdateProfile } from "@/features/profile/hooks/use-update-profile";
+import { useProfile } from "@/features/profile/hooks/use-profile";
+import type { ApiErrorResponse } from "@/types/profile-type";
 
 interface ProfileFormModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+function formatImageUrl(url: string | null | undefined): string {
+  if (!url || typeof url !== "string") return "";
+  const trimmed = url.trim();
+  if (trimmed.length === 0) return "";
+  if (
+    trimmed.startsWith("blob:") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://")
+  ) {
+    return trimmed;
+  }
+  const cleanPath = trimmed.startsWith("/") ? trimmed.slice(1) : trimmed;
+  return `https://intermediaiitc.com/public/${cleanPath}`;
+}
+
 export default function ProfileFormModal({
   isOpen,
   onClose,
 }: ProfileFormModalProps) {
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [twibbonPreview, setTwibbonPreview] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  const { data: profileResponse, isLoading: isFetchingProfile } = useProfile();
+  const updateProfileMutation = useUpdateProfile();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateProfileSchemaInput>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: {
+      fullName: "",
+      grade: "pelajar",
+      institution: "",
+      student_id_number: "",
+      gender: "male",
+      phone: "",
+    },
+  });
+
+  // Pre-fill form when profile data is fetched from GET /api/profile
+  useEffect(() => {
+    if (profileResponse?.data?.user) {
+      const u = profileResponse.data.user;
+      const p = u.participant;
+      const uObj = u as unknown as Record<string, unknown>;
+
+      setUserEmail(u.email || (uObj?.email as string) || "");
+
+      const rawGender = (p?.gender || uObj?.gender || "").toString().toLowerCase();
+      const normalizedGender =
+        rawGender === "female" || rawGender === "perempuan" ? "female" : "male";
+
+      const studentId = (
+        p?.student_id_number ??
+        uObj?.student_id_number ??
+        ""
+      ).toString();
+
+      reset({
+        fullName: u.name ?? (uObj?.fullName as string) ?? "",
+        phone: u.phone ? String(u.phone) : "",
+        grade: "pelajar",
+        institution: p?.institution ?? (uObj?.institution as string) ?? "",
+        student_id_number: studentId,
+        gender: normalizedGender,
+      });
+
+      const initialAvatar =
+        p?.avatar ||
+        p?.photo_identity ||
+        (uObj?.avatar as string) ||
+        (uObj?.photo_identity as string);
+      const initialTwibbon = p?.twibbon || (uObj?.twibbon as string);
+
+      if (initialAvatar && typeof initialAvatar === "string") {
+        setAvatarPreview(initialAvatar);
+      }
+      if (initialTwibbon && typeof initialTwibbon === "string") {
+        setTwibbonPreview(initialTwibbon);
+      }
+    }
+  }, [profileResponse, reset]);
+
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "avatar" | "twibbon",
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue(field, file, { shouldValidate: true });
+      const objectUrl = URL.createObjectURL(file);
+      if (field === "avatar") {
+        if (avatarPreview && avatarPreview.startsWith("blob:")) {
+          URL.revokeObjectURL(avatarPreview);
+        }
+        setAvatarPreview(objectUrl);
+      } else {
+        if (twibbonPreview && twibbonPreview.startsWith("blob:")) {
+          URL.revokeObjectURL(twibbonPreview);
+        }
+        setTwibbonPreview(objectUrl);
+      }
+    }
+  };
+
+  const removeFile = (field: "avatar" | "twibbon") => {
+    setValue(field, null, { shouldValidate: true });
+    if (field === "avatar") {
+      if (avatarPreview && avatarPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+      setAvatarPreview(null);
+    } else {
+      if (twibbonPreview && twibbonPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(twibbonPreview);
+      }
+      setTwibbonPreview(null);
+    }
+  };
+
+  const onSubmit = (data: UpdateProfileSchemaInput) => {
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    updateProfileMutation.mutate(
+      {
+        fullName: data.fullName,
+        grade: "pelajar",
+        institution: data.institution,
+        student_id_number: data.student_id_number,
+        gender: data.gender,
+        phone: data.phone,
+        avatar: data.avatar ?? null,
+        twibbon: data.twibbon ?? null,
+      },
+      {
+        onSuccess: (res) => {
+          setSuccessMessage(res.message || "Profil berhasil diperbarui!");
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 4000);
+        },
+        onError: (err: unknown) => {
+          const apiErr = err as { response?: { data?: ApiErrorResponse } };
+          setErrorMessage(
+            apiErr?.response?.data?.message ||
+              "Gagal memperbarui profil. Silakan periksa kembali data Anda.",
+          );
+        },
+      },
+    );
+  };
+
   return (
-    // Tambahkan prop ini agar ketika user klik di luar form (backdrop), modal TIDAK tertutup.
-    // Jadi user HANYA bisa menutup dari tombol X atau tombol Batal.
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
@@ -47,9 +216,9 @@ export default function ProfileFormModal({
 
           {/* Tombol Close Silang */}
           <button
+            type="button"
             onClick={onClose}
-            // Ditambahkan border-none outline-none focus:ring-0 agar benar-benar bersih
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-600 transition-colors border-none outline-none focus:outline-none focus:ring-0"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-600 transition-colors border-none outline-none focus:outline-none focus:ring-0 cursor-pointer"
             title="Tutup"
           >
             <X className="w-5 h-5" />
@@ -58,188 +227,293 @@ export default function ProfileFormModal({
 
         {/* Area Konten Scrollable */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 flex justify-center">
-          {/* Container Form agar tidak terlalu melebar di layar besar */}
           <div className="w-full max-w-5xl bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-fit">
             <div className="px-6 md:px-10 py-8">
-              <form className="space-y-10" onSubmit={(e) => e.preventDefault()}>
-                {/* Grid 2 Kolom untuk Input Teks */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-8">
-                  {/* Kolom Kiri */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Nama Lengkap <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        defaultValue="Budi Santoso"
-                        className="h-11 border-slate-200 w-full"
-                      />
-                    </div>
+              {isFetchingProfile ? (
+                <div className="py-16 text-center space-y-4">
+                  <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mx-auto" />
+                  <p className="text-slate-500 text-sm font-medium">
+                    Memuat data profil Anda...
+                  </p>
+                </div>
+              ) : (
+                <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+                  {/* Alert Notifikasi */}
+                  <AnimatePresence mode="wait">
+                    {successMessage && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-sm font-medium"
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                        <span>{successMessage}</span>
+                      </motion.div>
+                    )}
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Email <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        defaultValue="budi.santoso@example.com"
-                        readOnly
-                        className="h-11 w-full bg-slate-50 border-slate-200 text-slate-500 focus-visible:ring-0"
-                      />
-                    </div>
+                    {errorMessage && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl text-sm font-medium"
+                      >
+                        <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                        <span>{errorMessage}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Nomor Telepon <span className="text-red-500">*</span>
-                      </Label>
-                      <div className="flex rounded-md border border-slate-200 focus-within:ring-1 focus-within:ring-slate-950 transition-all overflow-hidden h-11 w-full">
-                        <span className="flex items-center justify-center px-4 bg-slate-50 border-r border-slate-200 text-slate-600 text-sm">
-                          +62
-                        </span>
+                  {/* Grid 2 Kolom untuk Input Teks */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-6">
+                    {/* Kolom Kiri */}
+                    <div className="space-y-5">
+                      <div className="space-y-1.5">
+                        <Label className="text-sm font-medium text-slate-700">
+                          Nama Lengkap <span className="text-red-500">*</span>
+                        </Label>
                         <Input
-                          placeholder="812xxxxxx"
-                          className="border-0 focus-visible:ring-0 rounded-none h-full bg-white shadow-none w-full"
+                          placeholder="Masukkan nama lengkap"
+                          {...register("fullName")}
+                          className="h-11 border-slate-200 w-full focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                        {errors.fullName && (
+                          <p className="text-xs text-rose-500 mt-1">
+                            {errors.fullName.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-sm font-medium text-slate-700">
+                          Email <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          value={userEmail}
+                          readOnly
+                          className="h-11 w-full bg-slate-50 border-slate-200 text-slate-500 focus-visible:ring-0 cursor-not-allowed"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-sm font-medium text-slate-700">
+                          Nomor Telepon / WhatsApp <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          placeholder="Contoh: 081234567890"
+                          {...register("phone")}
+                          className="h-11 border-slate-200 w-full focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                        {errors.phone && (
+                          <p className="text-xs text-rose-500 mt-1">
+                            {errors.phone.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-sm font-medium text-slate-700">
+                          Jenjang / Status <span className="text-red-500">*</span>
+                        </Label>
+                        <input type="hidden" value="pelajar" {...register("grade")} />
+                        <Input
+                          value="SMA / SMK Sederajat"
+                          readOnly
+                          disabled
+                          className="h-11 w-full bg-slate-100 text-slate-400 border-slate-200 font-medium cursor-not-allowed select-none focus-visible:ring-0"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Status <span className="text-red-500">*</span>
-                      </Label>
-                      <Select>
-                        <SelectTrigger className="h-11 w-full border-slate-200">
-                          <SelectValue placeholder="Pilih Status Anda" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pelajar">
-                            Pelajar (SMA/SMK Sederajat)
-                          </SelectItem>
-                          <SelectItem value="mahasiswa">Mahasiswa</SelectItem>
-                          <SelectItem value="peserta">Peserta</SelectItem>
-                          <SelectItem value="umum">Umum</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                    {/* Kolom Kanan */}
+                    <div className="space-y-5">
+                      <div className="space-y-1.5">
+                        <Label className="text-sm font-medium text-slate-700">
+                          Asal Sekolah / Instansi{" "}
+                          <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          placeholder="Contoh: Universitas Amikom Purwokerto"
+                          {...register("institution")}
+                          className="h-11 border-slate-200 w-full focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                        {errors.institution && (
+                          <p className="text-xs text-rose-500 mt-1">
+                            {errors.institution.message}
+                          </p>
+                        )}
+                      </div>
 
-                  {/* Kolom Kanan */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Asal Sekolah/Instansi{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        placeholder="Nama sekolah atau kampus"
-                        className="h-11 border-slate-200 w-full"
-                      />
-                    </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-sm font-medium text-slate-700">
+                          NISN / NIM / No. Kartu Pelajar <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          placeholder="Masukkan NISN atau NIM"
+                          {...register("student_id_number")}
+                          className="h-11 border-slate-200 w-full focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                        {errors.student_id_number && (
+                          <p className="text-xs text-rose-500 mt-1">
+                            {errors.student_id_number.message}
+                          </p>
+                        )}
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">
-                        NISN / NIM (Opsional)
-                      </Label>
-                      <Input
-                        placeholder="Masukkan NISN atau NIM"
-                        className="h-11 border-slate-200 w-full"
-                      />
-                    </div>
-
-                    <div className="space-y-3 pt-1">
-                      <Label className="text-sm font-medium text-slate-700">
-                        Jenis Kelamin <span className="text-red-500">*</span>
-                      </Label>
-                      <RadioGroup
-                        defaultValue="laki-laki"
-                        className="flex items-center gap-6 pt-2"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem
-                            value="laki-laki"
-                            id="laki-laki"
-                            className="text-blue-700 border-slate-300"
-                          />
-                          <Label
-                            htmlFor="laki-laki"
-                            className="font-normal text-slate-700 cursor-pointer"
-                          >
+                      <div className="space-y-2 pt-1">
+                        <Label className="text-sm font-medium text-slate-700 block">
+                          Jenis Kelamin <span className="text-red-500">*</span>
+                        </Label>
+                        <div className="flex items-center gap-6 pt-1">
+                          <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="male"
+                              {...register("gender")}
+                              className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                            />
                             Laki-laki
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem
-                            value="perempuan"
-                            id="perempuan"
-                            className="text-blue-700 border-slate-300"
-                          />
-                          <Label
-                            htmlFor="perempuan"
-                            className="font-normal text-slate-700 cursor-pointer"
-                          >
+                          </label>
+                          <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="female"
+                              {...register("gender")}
+                              className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                            />
                             Perempuan
-                          </Label>
+                          </label>
                         </div>
-                      </RadioGroup>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grid 2 Kolom untuk Area Upload */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">
-                      Foto Profil (Avatar){" "}
-                      <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 transition-colors h-40">
-                      <div className="w-10 h-10 bg-indigo-50 text-[#1a0b8c] rounded-full flex items-center justify-center mb-3">
-                        <ImageIcon className="w-5 h-5" />
+                        {errors.gender && (
+                          <p className="text-xs text-rose-500 mt-1">
+                            {errors.gender.message}
+                          </p>
+                        )}
                       </div>
-                      <h4 className="text-sm font-semibold text-[#1a0b8c] mb-1">
-                        Pilih Gambar
-                      </h4>
-                      <p className="text-xs text-slate-500">
-                        JPG, PNG atau GIF (Max 2MB)
-                      </p>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">
-                      Bukti Upload Twibbon{" "}
-                      <span className="text-red-500">*</span>
-                    </Label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 transition-colors h-40">
-                      <div className="w-10 h-10 bg-indigo-50 text-[#1a0b8c] rounded-full flex items-center justify-center mb-3">
-                        <UploadCloud className="w-5 h-5" />
-                      </div>
-                      <h4 className="text-sm font-semibold text-[#1a0b8c] mb-1">
-                        Unggah Screenshot
-                      </h4>
-                      <p className="text-xs text-slate-500">
-                        Instagram / Media sosial lainnya (Max 5MB)
-                      </p>
+                  {/* Grid 2 Kolom untuk Area Upload */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+                    {/* Avatar Upload */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-slate-700 block">
+                        Foto Profil (Avatar)
+                      </Label>
+                      {avatarPreview ? (
+                        <div className="relative w-full h-44 rounded-xl border border-slate-200 overflow-hidden bg-slate-50 flex items-center justify-center group">
+                          <img
+                            src={formatImageUrl(avatarPreview)}
+                            alt="Preview Avatar"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeFile("avatar")}
+                            className="absolute top-2 right-2 p-1.5 bg-slate-900/70 hover:bg-rose-600 text-white rounded-full transition shadow-md"
+                            title="Hapus foto"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center h-44 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl cursor-pointer bg-slate-50/50 hover:bg-indigo-50/30 transition text-center p-4">
+                          <UploadCloud className="w-8 h-8 text-indigo-500 mb-2" />
+                          <span className="text-xs font-semibold text-slate-700">
+                            Klik untuk unggah Avatar
+                          </span>
+                          <span className="text-[11px] text-slate-400 mt-1">
+                            PNG, JPG, WEBP maks. 5MB
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/png, image/jpeg, image/jpg, image/webp"
+                            className="hidden"
+                            onChange={(e) => handleFileChange(e, "avatar")}
+                          />
+                        </label>
+                      )}
+                      {errors.avatar && (
+                        <p className="text-xs text-rose-500 mt-1">
+                          {errors.avatar.message as string}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Twibbon Upload */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-slate-700 block">
+                        Bukti Upload Twibbon
+                      </Label>
+                      {twibbonPreview ? (
+                        <div className="relative w-full h-44 rounded-xl border border-slate-200 overflow-hidden bg-slate-50 flex items-center justify-center group">
+                          <img
+                            src={formatImageUrl(twibbonPreview)}
+                            alt="Preview Twibbon"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeFile("twibbon")}
+                            className="absolute top-2 right-2 p-1.5 bg-slate-900/70 hover:bg-rose-600 text-white rounded-full transition shadow-md"
+                            title="Hapus twibbon"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center h-44 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl cursor-pointer bg-slate-50/50 hover:bg-indigo-50/30 transition text-center p-4">
+                          <UploadCloud className="w-8 h-8 text-indigo-500 mb-2" />
+                          <span className="text-xs font-semibold text-slate-700">
+                            Klik untuk unggah Twibbon
+                          </span>
+                          <span className="text-[11px] text-slate-400 mt-1">
+                            PNG, JPG, WEBP maks. 5MB
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/png, image/jpeg, image/jpg, image/webp"
+                            className="hidden"
+                            onChange={(e) => handleFileChange(e, "twibbon")}
+                          />
+                        </label>
+                      )}
+                      {errors.twibbon && (
+                        <p className="text-xs text-rose-500 mt-1">
+                          {errors.twibbon.message as string}
+                        </p>
+                      )}
                     </div>
                   </div>
-                </div>
-              </form>
-            </div>
 
-            {/* Footer (Action Buttons) */}
-            <div className="px-6 md:px-10 py-5 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50 rounded-b-2xl">
-              <Button
-                variant="outline"
-                onClick={onClose}
-                className="border-slate-300 text-slate-700 hover:text-slate-900 font-medium px-6 h-11"
-              >
-                Batal
-              </Button>
-              <Button
-                onClick={onClose}
-                className="bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-6 h-11 shadow-sm"
-              >
-                Simpan Perubahan
-              </Button>
+                  {/* Footer (Action Buttons) */}
+                  <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={onClose}
+                      className="border-slate-300 text-slate-700 hover:text-slate-900 font-medium px-6 h-11"
+                    >
+                      Batal
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={updateProfileMutation.isPending}
+                      className="bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-6 h-11 shadow-sm flex items-center gap-2"
+                    >
+                      {updateProfileMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Menyimpan...</span>
+                        </>
+                      ) : (
+                        <span>Simpan Perubahan</span>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>

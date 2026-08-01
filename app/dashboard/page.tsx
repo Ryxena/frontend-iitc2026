@@ -8,9 +8,14 @@ import DeadlineCard from "@/components/features/dashboard/DeadlineCard";
 import EmptyStateCard from "@/components/features/dashboard/EmptyStateCard";
 import WelcomeModal from "@/components/features/dashboard/WelcomeModal";
 import CompetitionCategoryModal from "@/components/features/dashboard/CompetitionCategoryModal";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 
 export default function DashboardPage() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const { data: profileResponse, isLoading } = useProfile();
+
+  const user = profileResponse?.data?.user;
+  const userName = user?.name || (user as any)?.fullName;
 
   return (
     <>
@@ -28,7 +33,11 @@ export default function DashboardPage() {
       >
         <div>
           <h1 className="text-3xl font-bold text-slate-900 mb-1">
-            Halo, Ahmad!
+            {isLoading ? (
+              <span className="inline-block w-48 h-9 bg-slate-200 animate-pulse rounded-lg" />
+            ) : (
+              `Halo, ${userName || "Peserta"}!`
+            )}
           </h1>
           <p className="text-slate-500">
             Selamat datang di portal kompetisi Heritage Tech.

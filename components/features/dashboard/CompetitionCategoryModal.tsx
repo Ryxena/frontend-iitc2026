@@ -85,7 +85,7 @@ export default function CompetitionCategoryModal({
             Pilih Kategori Lomba
           </h2>
           <p className="text-sm text-slate-500">
-            Tentukan bidang keahlian yang ingin Anda ikuti.
+            Tentukan bidang keahlian yang ingin Anda ikuti (Jenjang: <span className="text-slate-400 font-medium">SMA / SMK Sederajat</span>).
           </p>
         </div>
 
@@ -137,6 +137,8 @@ export default function CompetitionCategoryModal({
                     item.maxMembers <= 1
                       ? "Individu"
                       : `Tim (maks ${item.maxMembers} org)`;
+                  const itemObj = item as unknown as Record<string, unknown>;
+                  const price = (item.competitionPrice ?? item.competition_price ?? itemObj.price) as number | null | undefined;
 
                   return (
                     <div
@@ -177,25 +179,21 @@ export default function CompetitionCategoryModal({
                           <h3 className="text-lg font-bold text-slate-900 leading-tight">
                             {item.name}
                           </h3>
-                          <span className="bg-slate-100 text-slate-600 text-[10px] px-2 py-1 rounded-full font-medium whitespace-nowrap">
-                            {badge}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                            <span className="bg-slate-100 text-slate-600 text-[10px] px-2 py-1 rounded-full font-medium whitespace-nowrap">
+                              {badge}
+                            </span>
+                          </div>
                         </div>
 
-                        {/* CATATAN: field description & price BELUM ada di
-                          response GET /api/competitions (list) per
-                          dokumentasi terbaru — cuma ada di endpoint detail
-                          (GET /api/competitions/:slug). Blok ini otomatis
-                          kepakai begitu backend menambahkannya ke list
-                          endpoint. */}
                         {item.description && (
-                          <p className="text-sm text-slate-500 leading-relaxed mb-3 flex-1">
+                          <p className="text-xs text-slate-500 leading-relaxed mb-3 flex-1 line-clamp-4">
                             {item.description}
                           </p>
                         )}
 
                         <p className="text-sm font-semibold text-[#1a0b8c] mb-4">
-                          {formatPrice(item.price)}
+                          {formatPrice(price)}
                         </p>
 
                         {/* Tombol Pilih dalam Card */}

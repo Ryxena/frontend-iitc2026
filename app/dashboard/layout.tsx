@@ -18,10 +18,11 @@ import {
   Menu,
   Loader2,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import maskotIITC from "@/public/Maskot2.svg";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -130,6 +131,28 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { data: profileResponse } = useProfile();
+
+  const user = profileResponse?.data?.user;
+  const userName = user?.name || (user as any)?.fullName || "";
+  const initial = userName.trim() ? userName.trim().charAt(0).toUpperCase() : "U";
+  const avatarPath = user?.participant?.avatar || (user as any)?.avatar;
+
+  let avatarUrl = "";
+  if (avatarPath && typeof avatarPath === "string") {
+    const trimmed = avatarPath.trim();
+    if (
+      trimmed.startsWith("blob:") ||
+      trimmed.startsWith("data:") ||
+      trimmed.startsWith("http://") ||
+      trimmed.startsWith("https://")
+    ) {
+      avatarUrl = trimmed;
+    } else if (trimmed.length > 0) {
+      const cleanPath = trimmed.startsWith("/") ? trimmed.slice(1) : trimmed;
+      avatarUrl = `https://intermediaiitc.com/public/${cleanPath}`;
+    }
+  }
 
   return (
     <div className="flex h-screen bg-[#F8FAFC]">
@@ -166,8 +189,9 @@ export default function DashboardLayout({
               <Bell className="w-5 h-5" />
             </button>
             <Avatar className="w-10 h-10 border border-indigo-100">
+              {avatarUrl && <AvatarImage src={avatarUrl} alt={userName} />}
               <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold">
-                A
+                {initial}
               </AvatarFallback>
             </Avatar>
           </div>

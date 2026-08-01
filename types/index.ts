@@ -35,7 +35,10 @@ export interface LeaveTeamModalProps {
   onClose: () => void;
   onConfirm: () => void;
   teamName: string;
+  role?: "leader" | "member";
+  isLoading?: boolean;
 }
+
 
 // Bentuk response ASLI dari Laravel (dikonfirmasi dari Postman docs).
 export interface LaravelLoginResponse {
@@ -112,10 +115,13 @@ export interface RegisterResponse {
 export interface Competition {
   slug: string;
   name: string;
-  cover: string;
+  cover: string | null;
   maxMembers: number;
-  price?: number | null; // belum terkonfirmasi ada di response
-  description?: string | null; // belum terkonfirmasi ada di response
+  competitionPrice?: number | null;
+  competition_price?: number | null;
+  description?: string | null;
+  guideBookLink?: string | null;
+  categories?: unknown[];
 }
 
 export interface CompetitionsApiResponse {

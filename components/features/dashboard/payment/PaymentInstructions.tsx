@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function PaymentInstructions() {
   const instructions = [
-    "Transfer sesuai nominal biaya pendaftaran kompetisi (Rp 150.000).",
+    "Transfer sesuai nominal biaya pendaftaran kompetisi (Rp 45.000).",
     "Simpan bukti transfer dalam format JPG, PNG, atau PDF.",
     "Unggah file bukti pada area dropzone di samping.",
     "Tunggu verifikasi admin maksimal 2×24 jam kerja.",

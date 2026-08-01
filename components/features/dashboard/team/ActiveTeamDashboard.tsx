@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Key, Copy, UserPlus, Star, LogOut, Info, Check, Shield } from "lucide-react";
+import { Key, Copy, UserPlus, Star, LogOut, Info, Check, Shield, Trash2 } from "lucide-react";
 import Image from "next/image";
 import maskotIITC from "@/public/Maskot2.svg";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,9 @@ export default function ActiveTeamDashboard({
   role,
   userEmail,
   onLeaveTeam,
+  onDeleteTeam,
+  isActionLoading = false,
+  actionError,
 }: ActiveTeamDashboardProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
@@ -39,9 +42,13 @@ export default function ActiveTeamDashboard({
     setIsRemoveModalOpen(false);
   };
 
-  const handleConfirmLeave = () => {
+  const handleConfirmLeaveOrDelete = () => {
     setIsLeaveModalOpen(false);
-    onLeaveTeam();
+    if (role === "leader") {
+      onDeleteTeam?.();
+    } else {
+      onLeaveTeam();
+    }
   };
 
   const leader = team.leader;
@@ -66,8 +73,10 @@ export default function ActiveTeamDashboard({
       <LeaveTeamModal
         isOpen={isLeaveModalOpen}
         onClose={() => setIsLeaveModalOpen(false)}
-        onConfirm={handleConfirmLeave}
+        onConfirm={handleConfirmLeaveOrDelete}
         teamName={team.name}
+        role={role}
+        isLoading={isActionLoading}
       />
 
       <motion.div
@@ -274,8 +283,8 @@ export default function ActiveTeamDashboard({
           </div>
         </div>
 
-        {/* SECTION: INFO ATAU DANGER ZONE */}
-        {role === "leader" ? (
+        {/* SECTION: INFO (KETUA TIM) */}
+        {role === "leader" && (
           <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-5 flex items-start gap-3">
             <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
@@ -286,29 +295,45 @@ export default function ActiveTeamDashboard({
               </p>
             </div>
           </div>
-        ) : (
-          <div className="space-y-4 pt-4">
-            <h3 className="font-bold text-lg text-red-500">Zona Bahaya</h3>
-            <div className="bg-red-50/50 border border-red-200 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div>
-                <h4 className="text-lg font-bold text-slate-900 mb-1">
-                  Keluar dari Tim
-                </h4>
-                <p className="text-sm text-slate-600">
-                  Tindakan ini tidak dapat dibatalkan. Anda harus diundang
-                  kembali oleh Ketua Tim jika ingin bergabung ulang.
-                </p>
-              </div>
-              <Button
-                onClick={() => setIsLeaveModalOpen(true)}
-                variant="outline"
-                className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 font-semibold px-6 h-11 shrink-0 flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" /> Keluar Tim
-              </Button>
-            </div>
-          </div>
         )}
+
+        {/* SECTION: DANGER ZONE (KETUA / ANGGOTA TIM) */}
+        <div className="space-y-4 pt-4">
+          <h3 className="font-bold text-lg text-red-500">Zona Bahaya</h3>
+          {actionError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+              {actionError}
+            </div>
+          )}
+          <div className="bg-red-50/50 border border-red-200 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <h4 className="text-lg font-bold text-slate-900 mb-1">
+                {role === "leader" ? "Hapus Tim" : "Keluar dari Tim"}
+              </h4>
+              <p className="text-sm text-slate-600">
+                {role === "leader"
+                  ? "Tindakan ini tidak dapat dibatalkan. Tim akan dibubarkan dan seluruh anggota akan dikeluarkan dari tim."
+                  : "Tindakan ini tidak dapat dibatalkan. Anda harus diundang kembali oleh Ketua Tim jika ingin bergabung ulang."}
+              </p>
+            </div>
+            <Button
+              onClick={() => setIsLeaveModalOpen(true)}
+              variant="outline"
+              disabled={isActionLoading}
+              className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 font-semibold px-6 h-11 shrink-0 flex items-center gap-2"
+            >
+              {role === "leader" ? (
+                <>
+                  <Trash2 className="w-4 h-4" /> Hapus Tim
+                </>
+              ) : (
+                <>
+                  <LogOut className="w-4 h-4" /> Keluar Tim
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </motion.div>
     </>
   );

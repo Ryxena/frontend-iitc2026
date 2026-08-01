@@ -91,7 +91,7 @@ export default function ProfileForm() {
       reset({
         fullName: u.name ?? (uObj?.fullName as string) ?? "",
         phone: u.phone ? String(u.phone) : "",
-        grade: p?.grade ?? (uObj?.grade as string) ?? "",
+        grade: "pelajar",
         institution: p?.institution ?? (uObj?.institution as string) ?? "",
         student_id_number: studentId,
         gender: normalizedGender,
@@ -157,7 +157,7 @@ export default function ProfileForm() {
     updateProfileMutation.mutate(
       {
         fullName: data.fullName,
-        grade: data.grade,
+        grade: "pelajar",
         institution: data.institution,
         student_id_number: data.student_id_number,
         gender: data.gender,
@@ -173,7 +173,7 @@ export default function ProfileForm() {
           const apiErr = err as { response?: { data?: ApiErrorResponse } };
           setErrorMessage(
             apiErr?.response?.data?.message ||
-              "Gagal memperbarui profil. Silakan periksa kembali data Anda.",
+            "Gagal memperbarui profil. Silakan periksa kembali data Anda.",
           );
         },
       },
@@ -342,7 +342,7 @@ export default function ProfileForm() {
               </label>
               <input
                 type="text"
-                placeholder="Contoh: Universitas Amikom Yogyakarta"
+                placeholder="Contoh: Universitas Amikom Purwokerto"
                 {...register("institution")}
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition"
               />
@@ -353,22 +353,18 @@ export default function ProfileForm() {
               )}
             </div>
 
-            {/* Grade */}
+            {/* Grade / Jenjang */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <GraduationCap className="w-3.5 h-3.5 text-slate-400" /> Jenjang / Kelas / Tingkat
+                <GraduationCap className="w-3.5 h-3.5 text-slate-400" /> Jenjang / Status
               </label>
               <input
                 type="text"
-                placeholder="Contoh: S1 / Kelas 12 / Semester 4"
-                {...register("grade")}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition"
+                value="pelajar"
+                readOnly
+                disabled
+                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-400 font-medium cursor-not-allowed outline-none select-none"
               />
-              {errors.grade && (
-                <p className="text-xs text-rose-500 mt-1">
-                  {errors.grade.message}
-                </p>
-              )}
             </div>
 
             {/* Student ID Number */}
