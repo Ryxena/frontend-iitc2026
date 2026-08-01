@@ -1,3 +1,4 @@
+// features/team/hooks/use-join-team.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 
@@ -10,7 +11,9 @@ export function useJoinTeam() {
   return useMutation({
     mutationFn: joinTeamAsMember,
     onSuccess: () => {
+      // Invalidate kedua query agar halaman mengambil data terbaru secara otomatis
       queryClient.invalidateQueries({ queryKey: ["my-competitions"] });
+      queryClient.invalidateQueries({ queryKey: ["my-team-detail"] });
     },
   });
 }

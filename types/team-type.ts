@@ -11,15 +11,31 @@ export interface JoinCompetitionResponse {
 }
 
 export interface MyTeamSummary {
-  teamId: number;
-  competitionName: string;
-  cSlug: string;
-  teamName: string;
-  avatar: string;
-  isSubmit: boolean;
-  maxMembers: number;
-  currentMembers: number;
-  isActive: boolean | null;
+  id: number;
+  name: string;
+  code?: string; // Tambahkan properti kode tim
+  title: string;
+  submissionLink: string | null;
+
+  leader: {
+    id: number;
+    name: string;
+    email: string; // Tambahkan email leader
+    avatar?: string;
+  };
+
+  members?: Array<{
+    // Tambahkan array members
+    id: string | number;
+    name: string;
+    email: string;
+  }>;
+
+  competition: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 export interface GetMyCompetitionsResponse {

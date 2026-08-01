@@ -167,3 +167,29 @@ export interface UploadPaymentResponse {
     };
   };
 }
+
+export interface UpdateTeamInput {
+  name: string; // Required dari Laravel
+  title: string; // Required dari Laravel
+  submission?: string; // Optional (Link GDrive)
+  avatar?: File | null; // Optional
+}
+
+//profile
+export interface UserProfile {
+  user?: {
+    id: string | number;
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  // Atau jika struktur API mengembalikan field langsung tanpa pembungkus 'user':
+  email?: string;
+  name?: string;
+}
+
+export interface ProfileResponse {
+  success: boolean;
+  message: string;
+  data: UserProfile; // Sesuaikan dengan struktur JSON dari Laravel
+}

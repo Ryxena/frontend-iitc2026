@@ -1,125 +1,129 @@
+// app/(dashboard)/dashboard/team/page.tsx
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import maskotIITC from "@/public/Maskot2.svg";
+import { toast } from "sonner";
 
 import CreateTeamCard from "@/components/features/dashboard/team/CreateTeamCard";
 import JoinTeamCard from "@/components/features/dashboard/team/JoinTeamCard";
 import CreateTeamModal from "@/components/features/dashboard/team/CreateTeamModal";
 import ActiveTeamDashboard from "@/components/features/dashboard/team/ActiveTeamDashboard";
+
+// Hooks
 import { useMyCompetitions } from "@/features/team/hooks/use-my-competitions";
-import type { Team } from "@/types/index";
+import { useMyTeam } from "@/features/team/hooks/use-my-team";
+import {
+  useJoinTeam,
+  getJoinTeamErrorMessage,
+} from "@/features/team/hooks/use-join-team"; // IMPORT HOOK JOIN TEAM
+import {
+  useDeleteTeam,
+  useLeaveTeam,
+  useRemoveMember,
+  getManageTeamErrorMessage,
+} from "@/features/team/hooks/use-manage-team";
 
-// ============================================================================
-// CATATAN PENTING — keterbatasan data yang tersedia dari API saat ini:
-//
-// GET /api/competitions/mine (dipakai untuk cek "user sudah punya tim atau
-// belum") TIDAK mengembalikan siapa leader tim, kode undangan, atau daftar
-// anggota. Endpoint itu cuma kasih ringkasan: teamId, competitionName,
-// teamName, currentMembers, maxMembers, dst.
-//
-// Di struktur folder Postman kamu ada folder "Manage Team" dengan
-// GET/POST/DELETE ke /api/teams/{teamId} yang KEMUNGKINAN BESAR itu endpoint
-// detail tim (isinya leader, daftar member, kode undangan) — tapi belum ada
-// di dokumentasi odt yang kamu kasih. Jadi:
-//
-// 1. Role (leader/member) di sini masih pakai WORKAROUND sessionStorage —
-//    disimpan begitu user create/join tim di sesi browser INI. Ini TIDAK
-//    reliable lintas device/browser, dan hilang kalau sessionStorage
-//    di-clear. Ini bukan solusi permanen.
-// 2. ActiveTeamDashboard masih nampilin kode undangan & daftar anggota versi
-//    MOCK (data dummy) karena API yang dipanggil di sini belum bisa kasih
-//    data itu.
-//
-// Begini bisa dituntaskan: share dokumentasi/contoh curl dari
-// GET /api/teams/{teamId} (folder "Manage Team" di Postman), nanti bagian
-// ini + ActiveTeamDashboard di-update supaya semuanya dari data asli.
-// ============================================================================
-
-function getStoredRole(teamId: number): "leader" | "member" | null {
-  if (typeof window === "undefined") return null;
-  const stored = sessionStorage.getItem(`team-role:${teamId}`);
-  return stored === "leader" || stored === "member" ? stored : null;
-}
-
-function storeRole(teamId: number, role: "leader" | "member") {
-  if (typeof window === "undefined") return;
-  sessionStorage.setItem(`team-role:${teamId}`, role);
-}
+import { useProfile } from "@/features/profile/hooks/use-profile";
 
 function TeamPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  // Ini yang dikirim dari CompetitionCategoryModal di Dashboard lewat
-  // router.push(`/dashboard/team?competitionSlug=...`).
   const competitionSlug = searchParams.get("competitionSlug");
 
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
 
-  const { data: myTeams, isLoading } = useMyCompetitions();
-  const activeTeam = myTeams?.[0] ?? null;
+  // 1. Ambil data profil user untuk menentukan email (Leader / Member)
+  const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
+  const userEmail = profileResponse?.data?.user?.email;
 
-  // "role" SENGAJA bukan useState. Nilainya murni turunan dari activeTeam +
-  // sessionStorage — bisa dihitung langsung tiap render tanpa perlu
-  // useEffect yang manggil setState (itu yang sebelumnya memicu warning
-  // "Calling setState synchronously within an effect": dua useEffect saling
-  // susul-menyusul cuma buat men-sinkronkan state React dengan dirinya
-  // sendiri, padahal nilainya sudah bisa dihitung langsung).
-  //
-  // Default ke "member" kalau belum pernah disimpan sama sekali — lebih
-  // aman daripada salah asumsi "leader" dan kasih akses hapus anggota ke
-  // orang yang bukan ketua tim (lihat catatan besar di atas).
-  const role: "leader" | "member" | null = activeTeam
-    ? (getStoredRole(activeTeam.teamId) ?? "member")
-    : null;
+  // 2. Cek apakah user punya tim (dari summary data)
+  const { data: myTeamsSummary, isLoading: isSummaryLoading } =
+    useMyCompetitions();
 
-  // Effect yang tersisa CUMA menulis ke sessionStorage (sinkronisasi ke
-  // sistem eksternal — ini memang tugas semestinya sebuah effect), BUKAN
-  // memanggil setState. Supaya default "member" di atas benar-benar
-  // ke-persist, bukan cuma nilai sementara pas render.
-  useEffect(() => {
-    if (activeTeam && getStoredRole(activeTeam.teamId) === null) {
-      storeRole(activeTeam.teamId, "member");
-    }
-  }, [activeTeam]);
+  let hasTeam = false;
+  if (Array.isArray(myTeamsSummary)) {
+    hasTeam = myTeamsSummary.length > 0;
+  } else if (myTeamsSummary && typeof myTeamsSummary === "object") {
+    const summaryData = myTeamsSummary as { data?: unknown[] };
+    hasTeam = Array.isArray(summaryData.data) && summaryData.data.length > 0;
+  }
 
-  const handleTeamCreated = (team: Team) => {
-    storeRole(team.id, "leader");
-    // Bersihkan query param supaya kalau user refresh, gak nyoba create tim
-    // baru lagi buat competitionSlug yang sama.
-    router.replace("/dashboard/team");
-  };
+  // 3. Jika punya tim, Fetch data detailnya
+  const { data: teamDetailResponse, isLoading: isDetailLoading } =
+    useMyTeam(hasTeam);
 
-  const handleTeamJoined = () => {
-    // Query ["my-competitions"] sudah di-invalidate di dalam useJoinTeam,
-    // jadi begitu refetch selesai, activeTeam otomatis ke-update dan "role"
-    // di atas otomatis ikut terhitung ulang (default "member", lalu effect
-    // di atas yang nyimpen ke sessionStorage). Gak perlu apa-apa lagi di sini.
+  const teamDetail = teamDetailResponse?.data;
+  const team = teamDetail?.team;
+  const members = team?.members;
+  const competition = team?.competition?.name;
+
+  // Hooks Mutasi
+  const deleteMutation = useDeleteTeam();
+  const leaveMutation = useLeaveTeam();
+  const removeMutation = useRemoveMember();
+  const joinMutation = useJoinTeam(); // INISIALISASI MUTASI JOIN TEAM
+
+  const leaderEmail = team?.leader?.email?.toLowerCase().trim();
+  const activeUserEmail = userEmail?.toLowerCase().trim();
+
+  const role: "leader" | "member" =
+    leaderEmail && activeUserEmail && leaderEmail === activeUserEmail
+      ? "leader"
+      : "member";
+
+  const handleTeamCreated = () => router.replace("/dashboard/team");
+
+  // FUNGSI UTAMA KETIKA TOMBOL GABUNG DIKLIK
+  const handleTeamJoined = (code: string) => {
+    joinMutation.mutate(
+      { code },
+      {
+        onSuccess: () => {
+          toast.success("Berhasil bergabung ke dalam tim!");
+        },
+        onError: (error) => {
+          toast.error(getJoinTeamErrorMessage(error));
+        },
+      },
+    );
   };
 
   const handleLeaveTeam = () => {
-    if (activeTeam) {
-      sessionStorage.removeItem(`team-role:${activeTeam.teamId}`);
-    }
-    // TODO: belum ada endpoint terdokumentasi untuk "keluar dari tim" /
-    // "hapus tim" — tombol Keluar Tim di ActiveTeamDashboard masih
-    // console.log doang. Perlu dokumentasi endpoint itu untuk wire beneran.
+    leaveMutation.mutate(undefined, {
+      onSuccess: () => toast.success("Berhasil keluar dari tim."),
+      onError: (error) => toast.error(getManageTeamErrorMessage(error)),
+    });
   };
 
-  if (isLoading) {
+  const handleDeleteTeam = () => {
+    deleteMutation.mutate(undefined, {
+      onSuccess: () => toast.success("Tim berhasil dihapus."),
+      onError: (error) => toast.error(getManageTeamErrorMessage(error)),
+    });
+  };
+
+  const handleRemoveMember = (memberId: string | number) => {
+    removeMutation.mutate(memberId, {
+      onSuccess: () => toast.success("Anggota berhasil dikeluarkan."),
+      onError: (error) => toast.error(getManageTeamErrorMessage(error)),
+    });
+  };
+
+  if (isSummaryLoading || isDetailLoading || isProfileLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] text-slate-400 text-sm">
-        Memuat data tim...
+        Memuat data...
       </div>
     );
   }
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center overflow-hidden">
-      {!activeTeam && (
+      {!hasTeam && (
         <CreateTeamModal
           isOpen={isCreateTeamOpen}
           onClose={() => setIsCreateTeamOpen(false)}
@@ -127,12 +131,23 @@ function TeamPageContent() {
           competitionSlug={competitionSlug}
         />
       )}
-
-      {activeTeam && role ? (
+      {hasTeam && team ? (
         <ActiveTeamDashboard
-          teamName={activeTeam.teamName}
+          teamName={team.name}
           role={role}
+          teamCode={team.code}
+          competitionName={competition?.name}
+          leader={team.leader}
+          members={members}
+          currentUserEmail={userEmail} // <-- TERUSKAN EMAIL INI KE DASHBOARD
           onLeaveTeam={handleLeaveTeam}
+          onDeleteTeam={handleDeleteTeam}
+          onRemoveMember={handleRemoveMember}
+          isPendingAction={
+            deleteMutation.isPending ||
+            leaveMutation.isPending ||
+            removeMutation.isPending
+          }
         />
       ) : (
         <>
@@ -166,8 +181,7 @@ function TeamPageContent() {
             {!competitionSlug && (
               <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
                 Anda belum memilih lomba. Silakan pilih lomba terlebih dahulu
-                dari halaman Dashboard sebelum membuat tim baru. (Kalau Anda mau
-                gabung tim yang sudah ada lewat kode undangan, ini tidak perlu.)
+                dari halaman Dashboard sebelum membuat tim baru.
               </div>
             )}
 
@@ -176,7 +190,10 @@ function TeamPageContent() {
                 onClick={() => setIsCreateTeamOpen(true)}
                 disabled={!competitionSlug}
               />
-              <JoinTeamCard onJoin={handleTeamJoined} />
+              <JoinTeamCard
+                onJoin={handleTeamJoined}
+                isPending={joinMutation.isPending}
+              />
             </div>
           </motion.div>
         </>
@@ -186,9 +203,6 @@ function TeamPageContent() {
 }
 
 export default function TeamPage() {
-  // useSearchParams wajib dibungkus Suspense di App Router, kalau enggak
-  // Next.js bakal warning/error saat build (khususnya untuk static
-  // rendering) karena butuh tau kapan halaman ini boleh di-render statis.
   return (
     <Suspense fallback={null}>
       <TeamPageContent />
