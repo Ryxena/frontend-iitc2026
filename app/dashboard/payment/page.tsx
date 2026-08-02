@@ -1,3 +1,4 @@
+// app/(dashboard)/dashboard/payment/page.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -9,16 +10,27 @@ import PaymentMethod from "@/components/features/dashboard/payment/PaymentMethod
 import UploadProof from "@/components/features/dashboard/payment/UploadProof";
 import PaymentInstructions from "@/components/features/dashboard/payment/PaymentInstructions";
 import WhatsAppGroupCard from "@/components/features/dashboard/payment/WhatsAppGroupCard";
+import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
 
 // Import hooks
 import { usePaymentStatus } from "@/features/payment/hooks/use-payment-status";
 import { useMyTeam } from "@/features/team/hooks/use-my-team";
+import { useProfile } from "@/features/profile/hooks/use-profile";
+import type { ProfileDetail } from "@/types/profile-type";
 
-// Status yang dianggap "lolos verifikasi"
+interface ExtendedProfileUser {
+  name?: string;
+  email?: string;
+  phone?: string;
+  participant?: ProfileDetail & {
+    institution?: string;
+    gender?: string;
+    twibbon?: string;
+  };
+}
+
 const VERIFIED_STATUSES = ["VALID", "ACCEPTED", "SUCCESS"];
 
-// Metode pembayaran statis — ditaruh di luar komponen biar tidak
-// dibuat ulang tiap render.
 type PaymentMethodConfig = {
   title: string;
   provider: string;
@@ -49,12 +61,10 @@ const PAYMENT_METHODS: PaymentMethodConfig[] = [
     accountNumber: "901912316510",
     accountName: "Tifa Fitriana",
     icon: Landmark,
-    fullWidth: true, // dapat class md:col-span-2
+    fullWidth: true,
   },
 ];
 
-// Pemetaan nama lomba -> link grup WhatsApp. Data-driven, jadi nambah
-// lomba baru cukup nambah 1 entri di sini, tanpa nambah cabang if-else.
 const WHATSAPP_GROUP_BY_COMPETITION: { keywords: string[]; url: string }[] = [
   {
     keywords: ["web design", "webdesign"],
@@ -73,21 +83,34 @@ const WHATSAPP_GROUP_BY_COMPETITION: { keywords: string[]; url: string }[] = [
 function getWhatsAppGroupUrl(competitionName?: string): string {
   if (!competitionName) return "#";
   const name = competitionName.toLowerCase();
-
   const match = WHATSAPP_GROUP_BY_COMPETITION.find((entry) =>
     entry.keywords.some((keyword) => name.includes(keyword)),
   );
-
   return match?.url ?? "#";
 }
 
 export default function PaymentPage() {
+  const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
+  const { data: teamDetailResponse, isLoading: isTeamLoading } =
+    useMyTeam(true);
   const { data: statusResponse, isLoading: isStatusLoading } =
     usePaymentStatus();
 
-  // Ambil detail tim untuk mendapatkan informasi kompetisi
-  const { data: teamDetailResponse, isLoading: isTeamLoading } =
-    useMyTeam(true);
+  // Evaluasi Profil dengan casting aman
+  const user = profileResponse?.data?.user as ExtendedProfileUser | undefined;
+  const participant = user?.participant;
+
+  const isProfileComplete = Boolean(
+    user?.name &&
+    user?.phone &&
+    participant?.institution &&
+    participant?.gender &&
+    participant?.twibbon,
+  );
+
+  // Evaluasi Tim
+  const team = teamDetailResponse?.data?.team;
+  const isTeamComplete = Boolean(team);
 
   // Data Pembayaran
   const { status: currentStatus, reason: rejectReason } =
@@ -97,82 +120,87 @@ export default function PaymentPage() {
     currentStatus?.toUpperCase() ?? "",
   );
 
-  // Data Kompetisi & Harga Lomba
-  const competition = teamDetailResponse?.data?.team?.competition;
+  // Data Kompetisi
+  const competition = team?.competition;
   const competitionName = competition?.name || competition?.title || "";
   const competitionPrice = competition?.price;
   const whatsappGroupUrl = getWhatsAppGroupUrl(competitionName);
 
-  if (isStatusLoading || isTeamLoading) {
+  if (isStatusLoading || isTeamLoading || isProfileLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] text-slate-500">
-        <Loader2 className="w-6 h-6 animate-spin mr-2" /> Memuat data
-        pembayaran...
+        <Loader2 className="w-6 h-6 animate-spin mr-2" /> Memuat data...
       </div>
     );
   }
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center">
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-6xl mx-auto space-y-8 relative z-10"
-      >
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Pembayaran Registrasi
-          </h1>
-          <p className="text-slate-500 text-sm md:text-base">
-            Selesaikan pembayaran untuk memverifikasi pendaftaran tim Anda.
-          </p>
-        </div>
+      <StepGuardModal
+        isProfileComplete={isProfileComplete}
+        isTeamComplete={isTeamComplete}
+        requiredStep="payment"
+      />
 
-        <LeaderAlert />
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <PaymentStatus status={currentStatus} reason={rejectReason} />
-
-            {/* WhatsApp Card muncul otomatis dengan link sesuai lomba setelah terverifikasi */}
-            {isPaymentVerified && (
-              <WhatsAppGroupCard groupUrl={whatsappGroupUrl} />
-            )}
-
-            {/* Grid Kartu Metode Pembayaran */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-              {PAYMENT_METHODS.map((method) => {
-                const card = (
-                  <PaymentMethod
-                    title={method.title}
-                    provider={method.provider}
-                    accountNumber={method.accountNumber}
-                    accountName={method.accountName}
-                    icon={method.icon}
-                  />
-                );
-
-                return method.fullWidth ? (
-                  <div key={method.provider} className="md:col-span-2">
-                    {card}
-                  </div>
-                ) : (
-                  <div key={method.provider}>{card}</div>
-                );
-              })}
-            </div>
-
-            <UploadProof status={currentStatus} />
+      {isProfileComplete && isTeamComplete && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-6xl mx-auto space-y-8 relative z-10"
+        >
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              Pembayaran Registrasi
+            </h1>
+            <p className="text-slate-500 text-sm md:text-base">
+              Selesaikan pembayaran untuk memverifikasi pendaftaran tim Anda.
+            </p>
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="sticky top-6">
-              <PaymentInstructions fee={competitionPrice} />
+          <LeaderAlert />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <PaymentStatus status={currentStatus} reason={rejectReason} />
+
+              {isPaymentVerified && (
+                <WhatsAppGroupCard groupUrl={whatsappGroupUrl} />
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                {PAYMENT_METHODS.map((method) => {
+                  const card = (
+                    <PaymentMethod
+                      title={method.title}
+                      provider={method.provider}
+                      accountNumber={method.accountNumber}
+                      accountName={method.accountName}
+                      icon={method.icon}
+                    />
+                  );
+
+                  return method.fullWidth ? (
+                    <div key={method.provider} className="md:col-span-2">
+                      {card}
+                    </div>
+                  ) : (
+                    <div key={method.provider}>{card}</div>
+                  );
+                })}
+              </div>
+
+              <UploadProof status={currentStatus} />
+            </div>
+
+            <div className="lg:col-span-1">
+              <div className="sticky top-6">
+                <PaymentInstructions fee={competitionPrice} />
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
