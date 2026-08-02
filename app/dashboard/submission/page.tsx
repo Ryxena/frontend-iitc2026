@@ -5,20 +5,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Info,
-  FileText,
-  CheckCircle2,
-  PlusCircle,
   Link as LinkIcon,
   Lock,
   Users,
-  Sparkles,
-  LayoutGrid,
   Loader2,
   AlertCircle,
   ShieldAlert,
-  FolderOpen,
-  CheckCircle,
-  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +20,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import SuccessModal from "@/components/features/dashboard/submission/SuccessModal";
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
+import SubmissionStatusBadge from "@/components/features/dashboard/submission/SubmissionStatusBadge";
+import {
+  getRequirementGroup,
+  RequirementList,
+} from "@/components/features/dashboard/submission/submission-requirements";
 
 import { useMyCompetitions } from "@/features/team/hooks/use-my-competitions";
 import { useMyTeam } from "@/features/team/hooks/use-my-team";
@@ -50,8 +47,11 @@ interface ExtendedProfileUser {
   };
 }
 
+const VALID_PAYMENT_STATUSES = ["valid", "success", "accepted"];
+
 export default function UploadWorkPage() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [userEditedLink, setUserEditedLink] = useState<string | null>(null);
 
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
   const { data: myTeamsSummary, isLoading: isSummaryLoading } =
@@ -64,7 +64,9 @@ export default function UploadWorkPage() {
   const { data: paymentResponse, isLoading: isPaymentLoading } =
     usePaymentStatus();
 
-  // Evaluasi Profil dengan casting aman
+  const submitMutation = useSubmitTeamWork();
+
+  // Menggunakan interface yang aman dari pada tipe `any` agar lolos linter rule `@typescript-eslint/no-explicit-any`
   const user = profileResponse?.data?.user as ExtendedProfileUser | undefined;
   const participant = user?.participant;
   const userEmail = user?.email;
@@ -77,16 +79,13 @@ export default function UploadWorkPage() {
     participant?.twibbon,
   );
 
-  // Evaluasi Tim
   const team = teamDetailResponse?.data?.team;
   const isTeamComplete = Boolean(team);
 
-  // Evaluasi Pembayaran
-  const paymentStatus = paymentResponse?.data?.payment?.status;
-  const isPaymentComplete =
-    paymentStatus?.toLowerCase() === "valid" ||
-    paymentStatus?.toLowerCase() === "success" ||
-    paymentStatus?.toUpperCase() === "ACCEPTED";
+  const paymentStatus = paymentResponse?.data?.payment?.status?.toLowerCase();
+  const isPaymentComplete = Boolean(
+    paymentStatus && VALID_PAYMENT_STATUSES.includes(paymentStatus),
+  );
 
   const isLeader = Boolean(
     team?.leader?.email &&
@@ -94,15 +93,16 @@ export default function UploadWorkPage() {
     team.leader.email.toLowerCase().trim() === userEmail.toLowerCase().trim(),
   );
 
-  const submitMutation = useSubmitTeamWork();
-
-  const [userEditedLink, setUserEditedLink] = useState<string | null>(null);
   const driveLink =
     userEditedLink !== null ? userEditedLink : team?.submissionLink || "";
 
-  const isAlreadySubmitted = Boolean(
-    team?.submissionLink && team.submissionLink.trim() !== "",
-  );
+  const isAlreadySubmitted = Boolean(team?.submissionLink?.trim());
+
+  const isLoading =
+    isSummaryLoading || isDetailLoading || isProfileLoading || isPaymentLoading;
+
+  const canShowContent =
+    isProfileComplete && isTeamComplete && isPaymentComplete && Boolean(team);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,18 +111,11 @@ export default function UploadWorkPage() {
     submitMutation.mutate(
       { submission: driveLink },
       {
-        onSuccess: () => {
-          setIsSuccessModalOpen(true);
-        },
-        onError: (error) => {
-          toast.error(getSubmitTeamWorkErrorMessage(error));
-        },
+        onSuccess: () => setIsSuccessModalOpen(true),
+        onError: (error) => toast.error(getSubmitTeamWorkErrorMessage(error)),
       },
     );
   };
-
-  const isLoading =
-    isSummaryLoading || isDetailLoading || isProfileLoading || isPaymentLoading;
 
   if (isLoading) {
     return (
@@ -134,6 +127,8 @@ export default function UploadWorkPage() {
 
   const competition = team?.competition;
   const compSlug = competition?.slug?.toLowerCase() || "";
+  const requirementGroup = getRequirementGroup(compSlug);
+  const RequirementIcon = requirementGroup.icon;
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center">
@@ -149,7 +144,7 @@ export default function UploadWorkPage() {
         onClose={() => setIsSuccessModalOpen(false)}
       />
 
-      {isProfileComplete && isTeamComplete && isPaymentComplete && team && (
+      {canShowContent && team && (
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -169,19 +164,7 @@ export default function UploadWorkPage() {
               </p>
             </div>
 
-            <div>
-              {isAlreadySubmitted ? (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold shadow-xs">
-                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Karya Sudah Diunggah</span>
-                </div>
-              ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-sm font-semibold shadow-xs">
-                  <Clock className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>Belum Unggah Karya</span>
-                </div>
-              )}
-            </div>
+            <SubmissionStatusBadge isSubmitted={isAlreadySubmitted} />
           </div>
 
           <div className="w-full bg-[#f0f4ff] border border-[#d6e0ff] rounded-xl p-4 flex items-start gap-3 shadow-sm">
@@ -199,129 +182,24 @@ export default function UploadWorkPage() {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
-              <CardContent className="p-8 space-y-6">
-                {compSlug.includes("ui-ux") && (
-                  <>
-                    <div className="flex items-center gap-2 text-slate-900">
-                      <LayoutGrid className="w-5 h-5 text-indigo-600" />
-                      <h4 className="font-bold text-base">
-                        Persyaratan File UI/UX Design
-                      </h4>
-                    </div>
-                    <div className="bg-[#f8fafc] border border-slate-100 rounded-xl p-6 space-y-3">
-                      <p className="text-sm text-slate-600 font-medium">
-                        Pastikan folder Google Drive Anda berisi file berikut:
-                      </p>
-                      <div className="space-y-2.5 pt-1 text-sm text-slate-700">
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                          <span>Proposal Karya</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                          <span>
-                            Surat Pernyataan Orisinalitas (format PDF)
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <FolderOpen className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>Prototype Figma/Lainnya (format LINK)</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <FolderOpen className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>Video Showcase (format MP4).</span>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {compSlug.includes("web") && (
-                  <>
-                    <div className="flex items-center gap-2 text-slate-900">
-                      <FileText className="w-5 h-5 text-[#2F2FE4]" />
-                      <h4 className="font-bold text-base">
-                        Persyaratan File Web Design & Development
-                      </h4>
-                    </div>
-                    <div className="bg-[#f8fafc] border border-slate-100 rounded-xl p-6 space-y-3">
-                      <p className="text-sm text-slate-600 font-medium">
-                        Pastikan folder Google Drive Anda berisi file berikut:
-                      </p>
-                      <div className="space-y-2.5 pt-1 text-sm text-slate-700">
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                          <span>Proposal Karya</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <FolderOpen className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>Video Showcase</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                          <span>
-                            Surat Pernyataan Orisinalitas (Format PDF)
-                          </span>
-                        </div>{" "}
-                        <div className="flex items-center gap-3">
-                          <PlusCircle className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>Dokumentasi Teknis (Opsional)</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <FolderOpen className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>
-                            File besar/aset khusus (Jika tidak bisa di GitHub)
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {!compSlug.includes("ui-ux") && !compSlug.includes("web") && (
-                  <>
-                    <div className="flex items-center gap-2 text-slate-900">
-                      <Sparkles className="w-5 h-5 text-purple-600" />
-                      <h4 className="font-bold text-base">
-                        Persyaratan File GenAI
-                      </h4>
-                    </div>
-                    <div className="bg-[#f8fafc] border border-slate-100 rounded-xl p-6 space-y-3">
-                      <p className="text-sm text-slate-600 font-medium">
-                        Pastikan folder Google Drive Anda berisi file berikut:
-                      </p>
-                      <div className="space-y-2.5 pt-1 text-sm text-slate-700">
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                          <span>Video</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                          <span>Proposal Karya</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                          <span>
-                            Surat Pernyataan Orisinalitas (format PDF)
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <PlusCircle className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>Dokumentasi Teknis (opsional).</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <FolderOpen className="w-4 h-4 text-slate-400 shrink-0" />
-                          <span>Video Showcase (format MP4).</span>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
+            <CardContent className="p-8 space-y-6">
+              <div className="flex items-center gap-2 text-slate-900">
+                <RequirementIcon
+                  className={`w-5 h-5 ${requirementGroup.iconClassName}`}
+                />
+                <h4 className="font-bold text-base">
+                  {requirementGroup.title}
+                </h4>
+              </div>
+              <div className="bg-[#f8fafc] border border-slate-100 rounded-xl p-6 space-y-3">
+                <p className="text-sm text-slate-600 font-medium">
+                  Pastikan folder Google Drive Anda berisi file berikut:
+                </p>
+                <RequirementList items={requirementGroup.items} />
+              </div>
+            </CardContent>
+          </Card>
 
           <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
             <CardContent className="p-8">
