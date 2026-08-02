@@ -57,8 +57,7 @@ export default function Competitions() {
             </div>
             
             <p className="text-[0.95rem] text-slate-600 max-w-xl mb-6 relative z-10 leading-relaxed">
-              Rancang antarmuka web yang responsif, modern, dan berfokus pada
-              pengalaman pengguna yang inklusif.
+              Kembangkan website interaktif, edukatif, dan memukau secara visual sebagai media kampanye pelestarian bahasa daerah melalui inovasi digital.
             </p>
             
             <div className="mt-auto relative z-10 space-y-6">

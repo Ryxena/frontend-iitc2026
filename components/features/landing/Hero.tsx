@@ -20,13 +20,13 @@ export default function Hero() {
         </div>
 
         <h1 className="text-5xl md:text-6xl leading-[1.1] tracking-tight">
-          <span className="block font-normal text-slate-900">Inovasi</span>
+          <span className="block font-normal text-slate-900">From</span>
           <span className="block font-extrabold text-slate-900">
-            Masa Depan,
+            Vision to
           </span>
           <span className="block font-extrabold text-primary">
             <span className="relative inline-block">
-              Warisan
+              Innovation
               <svg
                 className="absolute left-0 -bottom-1.5 w-full h-3"
                 viewBox="0 0 100 12"
@@ -40,15 +40,12 @@ export default function Hero() {
                   strokeLinecap="round"
                 />
               </svg>
-            </span>{" "}
-            Budaya
+            </span>
           </span>
         </h1>
 
         <p className="text-slate-500 text-base md:text-lg max-w-xl leading-relaxed">
-          Ajang kompetisi teknologi bergengsi yang memadukan inovasi digital
-          modern dengan nilai-nilai luhur kebudayaan Indonesia. Tunjukkan
-          karyamu dan jadilah pelopor teknologi berbudaya.
+          Kompetisi teknologi tahunan dari UKM Intermedia Universitas Amikom Purwokerto bagi pelajar SMA/SMK/MA se-Indonesia untuk menjadi pelopor pelestarian keberagaman bahasa melalui inovasi digital.
         </p>
 
         <div className="flex flex-wrap gap-4 pt-2">
@@ -57,12 +54,14 @@ export default function Hero() {
               Daftar Sekarang
             </Button>
           </Link>
-          <Button
-            variant="outline"
-            className="rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md px-7 py-5 text-sm font-medium border-slate-300 text-slate-800 bg-white"
-          >
-            Lihat Selengkapnya
-          </Button>
+          <Link href="#tentang">
+            <Button
+              variant="outline"
+              className="rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md px-7 py-5 text-sm font-medium border-slate-300 text-slate-800 bg-white"
+            >
+              Lihat Selengkapnya
+            </Button>
+          </Link>
         </div>
       </motion.div>
 

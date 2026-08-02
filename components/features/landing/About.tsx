@@ -30,7 +30,7 @@ export default function About() {
               Visi Kami
             </p>
             <p className="italic font-bold text-slate-800 leading-relaxed text-[1.05rem]">
-              "Menjembatani masa depan tanpa melupakan akar tradisi."
+              "Memanfaatkan teknologi digital sebagai sarana pelestarian dan perayaan keberagaman bahasa di Indonesia."
             </p>
           </div>
         </motion.div>
@@ -44,31 +44,25 @@ export default function About() {
           className="lg:col-span-6 lg:col-start-7 space-y-7 text-slate-600"
         >
           <p className="leading-[1.8] text-[1.05rem]">
-            Melalui kompetisi ini, kami menantang talenta digital terbaik bangsa untuk <br className="hidden xl:block" />
-            menciptakan solusi teknologi yang relevan, inklusif, dan tetap menjunjung tinggi <br className="hidden xl:block" />
-            nilai-nilai luhur kebudayaan Nusantara.
+            IITC 2026 merupakan wadah bagi generasi muda untuk mengekspresikan ide kreatif dan mentransformasikan visi mereka menjadi karya visual. Kami menantang peserta untuk menciptakan solusi teknologi yang inklusif dan edukatif.
           </p>
           <p className="leading-[1.8] text-[1.05rem]">
-            Melalui kompetisi ini, kami menantang talenta digital terbaik bangsa untuk <br className="hidden xl:block" />
-            menciptakan solusi teknologi yang relevan, inklusif, dan tetap menjunjung tinggi <br className="hidden xl:block" />
-            nilai-nilai luhur kebudayaan Nusantara.
+            Dengan semangat <span className="font-semibold text-slate-800">"From Vision to Innovation"</span>, IITC bertujuan membangun jembatan antara kekayaan warisan bahasa masa lalu dengan masa depan melalui antarmuka teknologi digital yang modern.
           </p>
 
-          <div className="flex flex-col sm:flex-row justify-between gap-6 pt-6 lg:pt-8">
-            <div className="w-full sm:w-[19rem] xl:w-[21rem] bg-white border border-slate-200 rounded-tl-[2.5rem] rounded-br-[2.5rem] rounded-tr-md rounded-bl-md p-7 lg:p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
-              <Users className="w-8 h-8 text-blue-700" strokeWidth={2} />
-              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Inklusivitas</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 lg:pt-6">
+            <div className="w-full bg-white border border-slate-200 rounded-tl-[2.5rem] rounded-br-[2.5rem] rounded-tr-md rounded-bl-md p-6 lg:p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+              <Origami className="w-8 h-8 text-[#EA580C]" strokeWidth={2} />
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Pelestarian Bahasa</h3>
               <p className="text-[0.95rem] text-slate-600 leading-relaxed">
-                Membangun teknologi yang dapat diakses oleh seluruh lapisan
-                masyarakat Indonesia.
+                Mendigitalisasi dan mendokumentasikan kekayaan bahasa daerah sebagai warisan budaya.
               </p>
             </div>
-            <div className="w-full sm:w-[19rem] xl:w-[21rem] bg-white border border-slate-200 rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-md rounded-br-md p-7 lg:p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
-              <Origami className="w-8 h-8 text-[#EA580C]" strokeWidth={2} />
-              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Pelestarian</h3>
+            <div className="w-full bg-white border border-slate-200 rounded-tr-[2.5rem] rounded-bl-[2.5rem] rounded-tl-md rounded-br-md p-6 lg:p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-700"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <h3 className="text-lg font-semibold text-slate-900 tracking-tight">Edukasi Interaktif</h3>
               <p className="text-[0.95rem] text-slate-600 leading-relaxed">
-                Mengintegrasikan nilai budaya ke dalam kode dan desain produk
-                digital modern.
+                Membangun platform pembelajaran bahasa yang interaktif dan memotivasi penggunanya.
               </p>
             </div>
           </div>
