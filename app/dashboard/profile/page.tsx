@@ -125,7 +125,7 @@ export default function ProfilePage() {
           <Button
             type="submit"
             disabled={isSaving}
-            className="bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium h-11 px-6 rounded-lg disabled:opacity-70"
+            className="bg-[#2F2FE4] hover:bg-[#13076b] text-white font-medium h-11 px-6 rounded-lg disabled:opacity-70"
           >
             {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
           </Button>

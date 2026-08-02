@@ -93,7 +93,7 @@ export default function SeminarInfoCard({
               rel="noopener noreferrer"
               className="inline-block w-full sm:w-auto"
             >
-              <Button className="w-full sm:w-auto bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium px-6 h-11 rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors">
+              <Button className="w-full sm:w-auto bg-[#2F2FE4] hover:bg-[#13076b] text-white font-medium px-6 h-11 rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors">
                 Daftar Seminar Sekarang <ExternalLink className="w-4 h-4" />
               </Button>
             </a>

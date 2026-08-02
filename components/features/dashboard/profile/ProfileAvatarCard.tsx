@@ -44,7 +44,7 @@ export default function ProfileAvatarCard({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-[#1a0b8c] hover:bg-[#13076b] text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-sm transition-colors whitespace-nowrap"
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-primary hover:bg-[#13076b] text-white text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-sm transition-colors whitespace-nowrap"
         >
           <Pencil className="w-3.5 h-3.5" /> Ganti Foto
         </button>
