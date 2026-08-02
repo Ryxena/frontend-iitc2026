@@ -151,7 +151,7 @@ function TeamPageContent() {
         />
       ) : (
         <>
-          <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-[0.03] pointer-events-none z-0 flex items-center justify-center">
+          <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 opacity-[0.03] pointer-events-none z-0 flex items-center justify-center">
             <div className="w-full h-full rounded-full flex items-center justify-center">
               <Image
                 src={maskotIITC}
