@@ -15,13 +15,26 @@ import type { NextRequest } from "next/server";
 // setiap request dan tetap bisa dibaca di sini oleh middleware (server-side).
 const TOKEN_COOKIE_NAME = "token";
 
-// Rute autentikasi: HARUS exact match ke path pertama, bukan startsWith biasa,
+// Rute autentikasi (halaman): HARUS exact match ke path pertama, bukan startsWith biasa,
 // supaya "/login-promo" atau "/register-info" tidak ikut ke-treat sebagai auth route.
 const AUTH_ROUTES = ["/login", "/register", "/forgot-password"];
 
-// Rute terproteksi: mencakup /dashboard dan semua sub-route-nya
-// (/dashboard/payment, /dashboard/profile, /dashboard/seminar, dst).
+// Rute terproteksi (halaman): mencakup /dashboard dan semua sub-route-nya
 const PROTECTED_ROUTE_PREFIX = "/dashboard";
+
+// Prefix untuk seluruh API route internal Next.js (route handler di app/api/**)
+const API_PREFIX = "/api";
+
+// Daftar API route yang HARUS tetap publik (tidak butuh token),
+// karena justru dipakai untuk proses login/register/lupa password,
+// atau untuk refresh token itu sendiri.
+// Gunakan exact match / prefix match sesuai kebutuhan.
+const PUBLIC_API_ROUTES = [
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/forgot-password",
+  "/api/auth/refresh", // kalau ada endpoint refresh token
+];
 
 function matchesExactRoute(pathname: string, routes: string[]) {
   return routes.some(
@@ -64,6 +77,25 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get(TOKEN_COOKIE_NAME)?.value;
   const hasValidToken = isTokenUsable(token);
 
+  const isApiRoute = pathname.startsWith(API_PREFIX);
+
+  // ── PROTEKSI KHUSUS UNTUK /api/** ────────────────────────────────
+  if (isApiRoute) {
+    const isPublicApiRoute = matchesExactRoute(pathname, PUBLIC_API_ROUTES);
+
+    // Kalau route API ini bukan yang dikecualikan (publik), wajib ada token.
+    if (!isPublicApiRoute && !hasValidToken) {
+      return NextResponse.json(
+        { message: "Unauthorized. Token tidak ditemukan atau tidak valid." },
+        { status: 401 },
+      );
+    }
+
+    // Token ada (atau memang route publik) -> lanjutkan ke route handler.
+    return NextResponse.next();
+  }
+
+  // ── PROTEKSI UNTUK HALAMAN (existing logic) ──────────────────────
   const isAuthRoute = matchesExactRoute(pathname, AUTH_ROUTES);
   const isProtectedRoute =
     pathname === PROTECTED_ROUTE_PREFIX ||
@@ -89,11 +121,13 @@ export const config = {
   matcher: [
     /*
      * Jalankan middleware pada semua request KECUALI:
-     * - api (Endpoint API)
      * - _next/static (File statis Next.js)
      * - _next/image (File optimasi gambar)
      * - favicon.ico, globals.css, dan aset publik (png, jpg, svg, webp)
+     *
+     * CATATAN: "api" TIDAK LAGI dikecualikan di sini, karena sekarang
+     * middleware justru bertugas memproteksi route /api/** juga.
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)",
   ],
 };

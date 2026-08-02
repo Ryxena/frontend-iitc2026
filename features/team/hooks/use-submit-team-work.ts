@@ -1,21 +1,19 @@
-// features/team/hooks/use-update-team.ts
+// features/team/hooks/use-submit-team-work.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 
-import { updateTeam } from "../api/update-team";
+import { submitTeamWork } from "../api/submit-team-work";
 import type { ApiErrorResponse } from "@/types/index";
 
-export function useUpdateTeam() {
+export function useSubmitTeamWork() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateTeam,
+    mutationFn: submitTeamWork,
     onSuccess: () => {
-      // Sebelumnya invalidate ["my-team"] — TIDAK cocok dengan queryKey
-      // asli yang dipakai useMyTeam (TEAM_QUERY_KEYS.myTeamDetail =
-      // ["my-team-detail"]), jadi invalidate ini gak pernah ngena dan UI
-      // gak refresh nampilin link yang baru disimpan sampai user refresh
-      // manual. Sekarang pakai konstanta yang sama biar dijamin sinkron.
+      // Konsisten dengan queryKey asli yang dipakai useMyTeam
+      // (TEAM_QUERY_KEYS.myTeamDetail = ["my-team-detail"]) supaya UI
+      // langsung refresh menampilkan link yang baru disimpan.
       queryClient.invalidateQueries({
         queryKey: ["my-competitions"],
       });
@@ -26,8 +24,8 @@ export function useUpdateTeam() {
   });
 }
 
-// Helper pesan error khusus update team
-export function getUpdateTeamErrorMessage(error: unknown): string {
+// Helper pesan error khusus submit karya
+export function getSubmitTeamWorkErrorMessage(error: unknown): string {
   if (isAxiosError<ApiErrorResponse>(error)) {
     return (
       error.response?.data?.message ??

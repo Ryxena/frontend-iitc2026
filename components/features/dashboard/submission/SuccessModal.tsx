@@ -4,7 +4,6 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import Link from "next/link";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -40,15 +39,8 @@ export default function SuccessModal({ isOpen, onClose }: SuccessModalProps) {
         {/* Tombol Aksi */}
         <div className="flex flex-col w-full gap-3">
           <Button
-            asChild
-            className="w-full bg-[#1a0b8c] hover:bg-[#13076b] text-white font-medium h-12 rounded-xl shadow-sm transition-colors cursor-pointer"
-          >
-            <Link href="/dashboard">Lihat Dashboard</Link>
-          </Button>
-          <Button
-            variant="outline"
             onClick={onClose}
-            className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 font-medium h-12 rounded-xl cursor-pointer"
+            className="w-full bg-[#2F2FE4] hover:bg-[#13076b] text-white font-medium h-12 rounded-xl shadow-sm transition-colors cursor-pointer"
           >
             Tutup
           </Button>

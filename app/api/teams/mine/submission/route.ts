@@ -1,4 +1,4 @@
-// app/api/teams/mine/update/route.ts
+// app/api/teams/mine/submission/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { isAxiosError } from "axios";
 
@@ -18,26 +18,27 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Ambil FormData dari Client
+    // Ambil FormData dari client (field: "submission" berisi link Drive)
     const formData = await request.formData();
 
-    // Teruskan FormData langsung ke Laravel
-    const { data } = await laravelApi.post("/teams/mine/update", formData, {
+    // Teruskan langsung ke Laravel — path sesuai dokumentasi Postman:
+    // POST /api/teams/mine/submission (bukan /teams/mine/update)
+    const { data } = await laravelApi.post("/teams/mine/submission", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        // Axios akan mengurus boundary multipart/form-data otomatis
+        // Axios yang mengurus boundary multipart/form-data otomatis
       },
     });
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error("[POST /api/teams/mine/update] error:", error);
+    console.error("[POST /api/teams/mine/submission] error:", error);
 
     if (isAxiosError<ApiErrorResponse>(error)) {
       const status = error.response?.status ?? 500;
       const message =
         error.response?.data?.message ??
-        "Terjadi kesalahan saat memperbarui data tim";
+        "Terjadi kesalahan saat menyimpan link karya";
 
       return NextResponse.json<ApiErrorResponse>(
         { message, errors: error.response?.data?.errors },
