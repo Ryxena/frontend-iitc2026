@@ -70,7 +70,6 @@ function TeamPageContent() {
     return () => clearTimeout(timer);
   }, [urlSlug, router]);
 
-  // 1. Ambil data profil dengan casting aman
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
   const user = profileResponse?.data?.user as ExtendedProfileUser | undefined;
   const participant = user?.participant;
@@ -84,7 +83,6 @@ function TeamPageContent() {
     participant?.twibbon,
   );
 
-  // 2. Ambil data tim summary
   const { data: myTeamsSummary, isLoading: isSummaryLoading } =
     useMyCompetitions();
 
@@ -96,7 +94,6 @@ function TeamPageContent() {
     hasTeam = Array.isArray(summaryData.data) && summaryData.data.length > 0;
   }
 
-  // 3. Ambil data detail tim
   const { data: teamDetailResponse, isLoading: isDetailLoading } =
     useMyTeam(hasTeam);
 
@@ -105,7 +102,6 @@ function TeamPageContent() {
   const members = team?.members;
   const competition = team?.competition?.name;
 
-  // Hooks Mutasi
   const deleteMutation = useDeleteTeam();
   const leaveMutation = useLeaveTeam();
   const removeMutation = useRemoveMember();
@@ -163,7 +159,7 @@ function TeamPageContent() {
   }
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center overflow-hidden">
+    <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center">
       <StepGuardModal
         isProfileComplete={isProfileComplete}
         isTeamComplete={hasTeam}
@@ -212,11 +208,12 @@ function TeamPageContent() {
                 </div>
               </div>
 
+              {/* Menggunakan w-full space-y-10 pb-12 agar lebarnya konsisten dengan Dashboard */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="w-full max-w-5xl mx-auto space-y-10 relative z-10"
+                className="w-full space-y-10 relative z-10 pb-12"
               >
                 <div>
                   <h1 className="text-3xl font-bold text-slate-900 mb-2">

@@ -1,3 +1,4 @@
+// dashboard/layout.tsx
 "use client";
 
 import { useState } from "react";
@@ -15,6 +16,7 @@ import {
   Bell,
   Menu,
   Loader2,
+  type LucideIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -30,6 +32,42 @@ const menuItems = [
   { icon: GraduationCap, label: "Seminar", href: "/dashboard/seminar" },
 ];
 
+interface NavLinkProps {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  isActive: boolean;
+  onNavigate?: () => void;
+  paddingY?: "py-3" | "py-2.5";
+}
+
+function NavLink({
+  href,
+  icon: Icon,
+  label,
+  isActive,
+  onNavigate,
+  paddingY = "py-3",
+}: NavLinkProps) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className={`relative flex items-center gap-3 px-5 ${paddingY} rounded-xl text-sm font-medium transition-colors ${
+        isActive
+          ? "text-[#2F2FE4] bg-blue-50 font-semibold"
+          : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+      }`}
+    >
+      {isActive && (
+        <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-[#2F2FE4]" />
+      )}
+      <Icon className="w-5 h-5 shrink-0" />
+      {label}
+    </Link>
+  );
+}
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const logoutMutation = useLogout();
@@ -39,13 +77,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     logoutMutation.mutate();
   };
 
-  // Cek apakah halaman profil sedang aktif
-  const isActiveProfile = pathname === "/dashboard/profile";
-
   return (
     <div className="flex flex-col justify-between h-full">
       <div>
-        {/* Logo Section */}
         <div className="pt-10 pb-8 flex flex-col items-center justify-center space-y-4">
           <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center overflow-hidden border-2 border-slate-100 shadow-sm relative">
             <Image
@@ -60,52 +94,29 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </h2>
         </div>
 
-        {/* Navigation */}
         <nav className="px-6 space-y-1">
-          {menuItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.label === "Dashboard" && pathname === "/dashboard");
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={onNavigate}
-                className={`relative flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-medium transition-colors ${
-                  isActive
-                    ? "text-[#2F2FE4] bg-blue-50 font-semibold"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                }`}
-              >
-                {isActive && (
-                  <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-[#2F2FE4]" />
-                )}
-                <item.icon className="w-5 h-5 shrink-0" />
-                {item.label}
-              </Link>
-            );
-          })}
+          {menuItems.map((item) => (
+            <NavLink
+              key={item.label}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              isActive={pathname === item.href}
+              onNavigate={onNavigate}
+            />
+          ))}
         </nav>
       </div>
 
-      {/* Bottom Menu */}
       <div className="pb-8 px-6 pt-6 space-y-1 border-t border-slate-200 mx-6">
-        <Link
+        <NavLink
           href="/dashboard/profile"
-          onClick={onNavigate}
-          // Tambahkan logika dynamic class di sini
-          className={`relative flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-            isActiveProfile
-              ? "text-[#2F2FE4] bg-blue-50 font-semibold"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          }`}
-        >
-          {/* Indikator bar biru saat aktif */}
-          {isActiveProfile && (
-            <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-[#2F2FE4]" />
-          )}
-          <CircleUserRound className="w-5 h-5 shrink-0" /> Profil
-        </Link>
+          icon={CircleUserRound}
+          label="Profil"
+          isActive={pathname === "/dashboard/profile"}
+          onNavigate={onNavigate}
+          paddingY="py-2.5"
+        />
 
         <button
           type="button"
@@ -136,7 +147,7 @@ export default function DashboardLayout({
     <div className="flex h-screen bg-[#F8FAFC]">
       <Toaster />
       {/* Sidebar Desktop */}
-      <aside className="w-64 bg-[#F8FAFC] border-r border-slate-200 hidden md:flex">
+      <aside className="w-64 bg-[#F8FAFC] border-r border-slate-200 hidden md:flex shrink-0">
         <SidebarContent />
       </aside>
 
@@ -153,7 +164,7 @@ export default function DashboardLayout({
       {/* Main Content Wrapper */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-20 bg-[#F8FAFC] flex items-center justify-between md:justify-end px-4 sm:px-8 gap-4 sm:gap-6 border-b border-slate-200">
+        <header className="h-20 bg-[#F8FAFC] flex items-center justify-between md:justify-end px-6 sm:px-10 lg:px-12 gap-4 sm:gap-6 border-b border-slate-200 shrink-0">
           <button
             onClick={() => setMobileNavOpen(true)}
             className="md:hidden text-slate-600 hover:text-slate-900 transition-colors"
@@ -174,8 +185,10 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8">{children}</main>
+        {/* Page Content: Padding horizontal diatur konsisten di sini */}
+        <main className="flex-1 overflow-y-auto px-6 sm:px-10 lg:px-12 py-8">
+          {children}
+        </main>
       </div>
     </div>
   );

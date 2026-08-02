@@ -25,16 +25,31 @@ const PROTECTED_ROUTE_PREFIX = "/dashboard";
 // Prefix untuk seluruh API route internal Next.js (route handler di app/api/**)
 const API_PREFIX = "/api";
 
-// Daftar API route yang HARUS tetap publik (tidak butuh token),
-// karena justru dipakai untuk proses login/register/lupa password,
-// atau untuk refresh token itu sendiri.
-// Gunakan exact match / prefix match sesuai kebutuhan.
-const PUBLIC_API_ROUTES = [
-  "/api/auth/login",
-  "/api/auth/register",
-  "/api/auth/forgot-password",
-  "/api/auth/refresh", // kalau ada endpoint refresh token
-];
+// ============================================================================
+// PENTING — kenapa ini WHITELIST TERBALIK (protected-list, bukan public-list):
+//
+// Versi sebelumnya pakai PUBLIC_API_ROUTES (daftar route yang dikecualikan
+// dari proteksi), dan defaultnya "blokir semua /api/** kecuali yang
+// terdaftar publik". Ini rapuh: begitu ada endpoint publik baru (misal
+// /api/competitions untuk landing page, atau /api/seminar), kalau lupa
+// didaftarkan ke whitelist, endpoint itu KEBLOK walau route handler-nya
+// sendiri gak pernah minta token — persis yang bikin landing page
+// ke-redirect ke /login gara-gara gagal fetch data publik.
+//
+// Sekarang dibalik: DEFAULT PUBLIK, dan yang didaftarkan di sini adalah
+// PREFIX route yang jelas-jelas berisi data pribadi/aksi tulis milik user
+// yang login (team, profile, payment). Kalau nanti ada fitur privat baru
+// di luar 3 domain ini, tambahkan prefix-nya ke sini — tapi risiko "lupa
+// nambahin" sekarang mengarah ke kesalahan yang lebih jarang terjadi
+// (fitur privat baru) dibanding sebelumnya (fitur publik baru, yang jauh
+// lebih sering ditambahkan: daftar lomba, seminar, dst).
+//
+// Semua route di bawah /api/auth/** (login, register, logout,
+// forgot-password, reset-password) SENGAJA tidak masuk sini sama sekali —
+// itu memang harus selalu bisa diakses tanpa token, karena justru dipakai
+// untuk proses login itu sendiri.
+// ============================================================================
+const PROTECTED_API_PREFIXES = ["/api/teams", "/api/profile", "/api/payment"];
 
 function matchesExactRoute(pathname: string, routes: string[]) {
   return routes.some(
@@ -42,16 +57,19 @@ function matchesExactRoute(pathname: string, routes: string[]) {
   );
 }
 
+function matchesPrefix(pathname: string, prefixes: string[]) {
+  return prefixes.some((prefix) => pathname.startsWith(prefix));
+}
+
 /**
- * PENTING — kenapa ini TIDAK lagi decode token sebagai JWT:
+ * PENTING — kenapa ini TIDAK decode token sebagai JWT:
  *
  * Laravel Sanctum tidak menerbitkan JWT. Token dari Sanctum berformat
  * opaque seperti "1|LlKr3poWmH8...random string..." — TIDAK punya
  * struktur header.payload.signature seperti JWT. Kalau token ini dilempar
  * ke `decodeJwt` (dari package `jose`), fungsi itu akan selalu throw
  * error karena formatnya tidak sesuai, sehingga token yang sebenarnya
- * VALID akan selalu dianggap invalid oleh middleware — inilah yang
- * menyebabkan bug "login sukses tapi tetap ke-redirect balik ke /login".
+ * VALID akan selalu dianggap invalid oleh middleware.
  *
  * Middleware di edge runtime TIDAK PUNYA cara untuk verifikasi keaslian/
  * masa berlaku token Sanctum secara mandiri — itu cuma bisa dicek oleh
@@ -63,9 +81,9 @@ function matchesExactRoute(pathname: string, routes: string[]) {
  * ditangani di dua tempat lain:
  *   1. Interceptor axios di sisi client (lib/api/axios.ts) — kalau
  *      Laravel balas 401, redirect ke /login.
- *   2. (Opsional, lebih kuat) Server Component di app/dashboard/layout.tsx
- *      melakukan fetch ke endpoint /me / /user ke Laravel sebelum render;
- *      kalau gagal, redirect ke /login dari server component.
+ *   2. Route handler individual yang manggil Laravel — kalau Laravel
+ *      balas 401 karena token expired/revoked, route handler ikut balas
+ *      401 ke client.
  */
 function isTokenUsable(token: string | undefined): boolean {
   return Boolean(token && token.trim().length > 0);
@@ -81,21 +99,22 @@ export function middleware(request: NextRequest) {
 
   // ── PROTEKSI KHUSUS UNTUK /api/** ────────────────────────────────
   if (isApiRoute) {
-    const isPublicApiRoute = matchesExactRoute(pathname, PUBLIC_API_ROUTES);
+    const isProtectedApiRoute = matchesPrefix(pathname, PROTECTED_API_PREFIXES);
 
-    // Kalau route API ini bukan yang dikecualikan (publik), wajib ada token.
-    if (!isPublicApiRoute && !hasValidToken) {
+    // Cuma blokir kalau route ini eksplisit masuk daftar PROTECTED dan
+    // token gak ada/kosong. Semua route lain (termasuk yang belum pernah
+    // kepikiran sebelumnya) otomatis lolos sebagai publik.
+    if (isProtectedApiRoute && !hasValidToken) {
       return NextResponse.json(
         { message: "Unauthorized. Token tidak ditemukan atau tidak valid." },
         { status: 401 },
       );
     }
 
-    // Token ada (atau memang route publik) -> lanjutkan ke route handler.
     return NextResponse.next();
   }
 
-  // ── PROTEKSI UNTUK HALAMAN (existing logic) ──────────────────────
+  // ── PROTEKSI UNTUK HALAMAN ────────────────────────────────────────
   const isAuthRoute = matchesExactRoute(pathname, AUTH_ROUTES);
   const isProtectedRoute =
     pathname === PROTECTED_ROUTE_PREFIX ||
@@ -125,8 +144,9 @@ export const config = {
      * - _next/image (File optimasi gambar)
      * - favicon.ico, globals.css, dan aset publik (png, jpg, svg, webp)
      *
-     * CATATAN: "api" TIDAK LAGI dikecualikan di sini, karena sekarang
-     * middleware justru bertugas memproteksi route /api/** juga.
+     * CATATAN: "api" TIDAK dikecualikan di sini, karena middleware ini
+     * juga bertugas memproteksi sebagian route /api/** (lihat
+     * PROTECTED_API_PREFIXES di atas).
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)",
   ],
