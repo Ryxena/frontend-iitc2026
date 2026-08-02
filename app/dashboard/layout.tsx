@@ -10,8 +10,7 @@ import {
   Wallet,
   CloudUpload,
   GraduationCap,
-  BadgeCheck,
-  Settings,
+  CircleUserRound,
   LogOut,
   Bell,
   Menu,
@@ -93,12 +92,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* Bottom Menu */}
       <div className="pb-8 px-6 pt-6 space-y-1 border-t border-slate-200 mx-6">
+        {/* Sebelumnya "Settings" dengan icon gear, href "/dashboard/pengaturan-akun".
+            Diganti jadi "Profil" (konsisten bahasa Indonesia & gaya label
+            singkat seperti menu lain di atas) + icon CircleUserRound
+            (lebih pas secara makna karena halamannya isinya foto profil,
+            data diri, password — bukan pengaturan sistem) + href
+            "/dashboard/profile" (konsisten bahasa Inggris sama route
+            dashboard lain: /dashboard/team, /dashboard/payment, dst). */}
         <Link
-          href="/dashboard/settings"
+          href="/dashboard/profile"
           onClick={onNavigate}
           className="flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
         >
-          <Settings className="w-5 h-5" /> Settings
+          <CircleUserRound className="w-5 h-5" /> Profil
         </Link>
 
         {/* Tombol logout — sengaja pakai <button>, bukan <Link>, karena ini
