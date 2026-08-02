@@ -4,71 +4,81 @@ import logoAmikom from "@/public/logo_amikom.png";
 import logoIntermedia from "@/public/logo_intermedia.png";
 import Image from "next/image";
 
-const socialIcons = [Mail, Globe, Camera, MessageSquare];
+const socialIcons = [
+  { icon: Mail, href: "#", label: "Email" },
+  { icon: Globe, href: "#", label: "Website" },
+  { icon: Camera, href: "#", label: "Instagram" },
+  { icon: MessageSquare, href: "#", label: "Forum" }
+];
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-slate-950 text-slate-300 py-12">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="w-full bg-[#030310] border-t border-indigo-500/10 text-slate-300 py-12 relative overflow-hidden">
+      {/* Efek Glow Latar Belakang */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[200px] bg-indigo-600/10 blur-[100px] rounded-full pointer-events-none" />
+
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
-          {/* Kiri: logo partner, judul, dan ikon sosial */}
+          
+          {/* Kiri: Logo, Judul & Sosial */}
           <div className="flex flex-col items-center lg:items-start gap-5">
-            {/* Ruang untuk logo partner/univ/ukm */}
-            <div className="flex gap-3">
-              <div className="w-20 h-14 rounded-xl  flex items-center justify-center ">
+            <div className="flex gap-4">
+              <div className="bg-white/5 p-2 rounded-xl backdrop-blur-sm border border-white/10 transition-colors hover:bg-white/10">
                 <Image
                   src={logoAmikom}
                   alt="Logo Universitas Amikom Purwokerto"
                   width={120}
                   height={40}
-                  className="h-11 w-auto"
+                  className="h-10 w-auto object-contain"
                 />
               </div>
-              <div className="w-20 h-14 rounded-xl  flex items-center justify-center ">
+              <div className="bg-white/5 p-2 rounded-xl backdrop-blur-sm border border-white/10 transition-colors hover:bg-white/10">
                 <Image
                   src={logoIntermedia}
                   alt="Logo Intermedia"
                   width={120}
                   height={40}
-                  className="h-10 w-auto"
+                  className="h-8 w-auto object-contain"
                 />
               </div>
             </div>
 
-            <h2 className="text-2xl font-bold text-white">
-              IITC Heritage Tech
-            </h2>
+            <div className="text-center lg:text-left">
+              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-indigo-200">
+                IITC 2026
+              </h2>
+              <p className="text-slate-400 text-xs mt-1 max-w-[250px]">
+                &quot;From Vision to Innovation&quot;
+              </p>
+            </div>
 
             <div className="flex gap-3">
-              {socialIcons.map((Icon, index) => (
+              {socialIcons.map((social, index) => (
                 <Link
                   key={index}
-                  href="#"
-                  className="w-10 h-10 rounded-xl border border-slate-700 hover:border-slate-500 hover:bg-slate-900 flex items-center justify-center transition-colors"
+                  href={social.href}
+                  aria-label={social.label}
+                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:border-indigo-400/50 hover:bg-indigo-500/10 flex items-center justify-center transition-all duration-300 group hover:-translate-y-1"
                 >
-                  <Icon className="w-4 h-4 text-slate-300" />
+                  <social.icon className="w-4 h-4 text-slate-400 group-hover:text-indigo-300 transition-colors" />
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* Tengah: Links */}
-          <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm text-slate-400">
-            <Link href="#" className="hover:text-white transition-colors">
-              Kebijakan Privasi
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Syarat &amp; Ketentuan
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Kontak Kami
-            </Link>
+          {/* Tengah: Navigasi (Grid 3 Kolom) */}
+          <nav className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4 text-sm font-medium text-slate-400">
+            {['Beranda', 'Kategori Lomba', 'Panduan', 'Syarat & Ketentuan', 'Kebijakan Privasi', 'Kontak Kami'].map((item) => (
+              <Link key={item} href="#" className="hover:text-indigo-300 transition-colors text-center lg:text-left">
+                {item}
+              </Link>
+            ))}
           </nav>
 
           {/* Kanan: Copyright */}
-          <div className="text-sm text-slate-500 text-center lg:text-right">
-            <p>&copy; {new Date().getFullYear()} IITC .</p>
-            <p>Built for Innovation.</p>
+          <div className="text-sm text-slate-500 text-center lg:text-right flex flex-col gap-1">
+            <p>&copy; {new Date().getFullYear()} IITC 2026.</p>
+            <p className="text-indigo-300/70 font-medium">Built for Innovation.</p>
           </div>
         </div>
       </div>

@@ -6,7 +6,6 @@ import {
   Globe,
   PenTool,
   Clapperboard,
-  Presentation,
   MapPin,
   Calendar,
   Clock,
@@ -16,6 +15,8 @@ import {
   Mic,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import posterSeminar from "@/public/seminar-iitc2026.png";
 
 export default function Competitions() {
   return (
@@ -176,23 +177,33 @@ export default function Competitions() {
         whileHover={{ scale: 1.01 }}
         className="w-full bg-white border border-slate-200 rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-[1rem] rounded-br-[1rem] overflow-hidden flex flex-col md:flex-row shadow-sm"
       >
-        <div className="w-full md:w-[32%] lg:w-[28%] bg-[#F4F6FB] flex flex-col items-center justify-center gap-6 py-12 px-6 border-b md:border-b-0 md:border-r border-slate-200 shrink-0">
-          <div className="relative">
-            <Users className="w-20 h-20 text-[#1100C9]" />
-            <Mic className="w-7 h-7 text-[#1100C9] absolute -right-4 -top-2" />
+        <div className="w-full md:w-[32%] lg:w-[28%] bg-linear-to-br from-amber-500 to-orange-600 flex flex-col items-center justify-center relative min-h-[320px] overflow-hidden border-b md:border-b-0 md:border-r border-slate-200 shrink-0">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size[16px_16px]"></div>
+          
+          <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-6">
+            <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl overflow-hidden shadow-lg border-4 border-white/80 bg-white mb-4 mt-4">
+              <Image
+                src={posterSeminar}
+                alt="Cendekia Luthfieta Nazalia, S.T."
+                className="w-full h-full object-cover object-top scale-125 pt-4"
+              />
+            </div>
+            <div className="bg-white/95 backdrop-blur-sm text-slate-900 text-xs sm:text-sm font-bold px-4 py-2 rounded-xl shadow-md text-center max-w-[90%]">
+              Cendekia Luthfieta Nazalia, S.T.
+              <span className="block text-[10px] font-normal text-slate-500 mt-0.5">
+                IT Edu Content Creator
+              </span>
+            </div>
           </div>
-          <Badge className="bg-[#1100C9] hover:bg-[#1100C9]/90 text-white rounded-full px-5 py-2 font-medium border-none shadow-sm text-sm">
-            Speaker Placeholder
-          </Badge>
         </div>
 
         <div className="p-8 md:p-10 lg:p-12 flex-1 flex flex-col justify-center gap-8">
           <div>
-            <span className="flex items-center gap-1.5 text-sm font-medium text-[#2F2FE4] mb-3">
-              <Calendar className="w-4 h-4" /> Seminar Nasional 2026
+            <span className="flex items-center w-fit gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-3 py-1 rounded-md mb-3">
+              <Calendar className="w-4 h-4" /> SEMINAR IITC 2026
             </span>
             <h3 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
-              Masa Depan Teknologi di Era <span className="text-[#1100C9]">Budaya Digital</span>
+              Kreatif dan Kritis di Era <span className="text-[#1100C9]">AI (Artificial Intelligence)</span>
             </h3>
           </div>
 

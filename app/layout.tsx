@@ -23,6 +23,9 @@ export const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "IITC 2026",
   description: "Created by Intermedia",
+  icons: {
+    icon: "/logo_ico.svg",
+  },
 };
 
 export default function RootLayout({

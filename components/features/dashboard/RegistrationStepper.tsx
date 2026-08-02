@@ -84,25 +84,20 @@ export default function RegistrationStepper({
         Status Pendaftaran
       </h3>
 
-      <div className="grid grid-cols-4 max-w-4xl mx-auto">
-        {steps.map((step, i) => (
-          <div key={step.label} className="relative flex flex-col items-center">
-            {/* Separuh garis kiri */}
-            {i > 0 && (
-              <div
-                className={`absolute right-1/2 top-6 w-1/2 h-0.5 ${segmentColor[i - 1]}`}
-              />
-            )}
-            {/* Separuh garis kanan */}
-            {i < steps.length - 1 && (
-              <div
-                className={`absolute left-1/2 top-6 w-1/2 h-0.5 ${segmentColor[i]}`}
-              />
-            )}
+      <div className="relative flex justify-between w-full max-w-4xl mx-auto">
+        {/* Garis Penghubung (Absolute di belakang, dihitung tepat dari tengah item pertama ke terakhir) */}
+        <div className="absolute top-6 left-[40px] right-[40px] sm:left-[60px] sm:right-[60px] h-0.5 flex z-0">
+          {steps.slice(0, -1).map((step, i) => (
+            <div key={i} className={`flex-1 h-full transition-colors duration-300 ${segmentColor[i]}`} />
+          ))}
+        </div>
 
+        {/* Lingkaran dan Label */}
+        {steps.map((step) => (
+          <div key={step.label} className="relative flex flex-col items-center z-10 w-[80px] sm:w-[120px]">
             {/* Lingkaran ikon */}
             <div
-              className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-sm ${
+              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm transition-colors duration-300 ${
                 step.status === "completed"
                   ? "bg-[#2F2FE4] text-white"
                   : step.status === "active"
@@ -114,7 +109,7 @@ export default function RegistrationStepper({
             </div>
 
             <span
-              className={`relative z-10 mt-3 text-sm font-medium text-center px-2 ${
+              className={`mt-3 text-xs sm:text-sm font-medium text-center leading-tight ${
                 step.status === "completed"
                   ? "text-slate-900"
                   : step.status === "active"

@@ -21,13 +21,12 @@ export default function PromoBanner({ onIkutiLombaClick }: PromoBannerProps) {
           Pendaftaran Buka
         </Badge>
 
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
-          Siap Menunjukkan Inovasi?
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight tracking-tight">
+          From Vision to Innovation
         </h2>
 
-        <p className="text-slate-600 leading-relaxed">
-          Pilih kategori lomba yang sesuai dengan minat dan keahlian tim Anda.
-          Terdapat 4 kategori kompetisi teknologi bergengsi tahun ini.
+        <p className="text-slate-600 leading-relaxed text-sm md:text-base">
+          Wujudkan ide brilian timmu menjadi karya nyata! Pilih dari 3 kategori lomba utama yang siap menantang kreativitas dan inovasimu dalam merayakan keberagaman bahasa di era digital.
         </p>
 
         {/* 2. Hubungkan event onClick ke prop onIkutiLombaClick */}
