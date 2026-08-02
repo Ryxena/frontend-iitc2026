@@ -1,3 +1,4 @@
+// components/features/dashboard/profile/ProfileTabs.tsx
 "use client";
 
 const TABS = [{ id: "profil", label: "Profil" }];
@@ -18,7 +19,7 @@ export default function ProfileTabs({
             <button
               key={tab.id}
               type="button"
-              className={`relative pb-3 text-sm font-semibold transition-colors ${
+              className={`relative pb-3 text-sm font-semibold transition-colors cursor-default ${
                 isActive
                   ? "text-[#2F2FE4]"
                   : "text-slate-500 hover:text-slate-700"
