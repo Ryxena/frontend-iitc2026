@@ -104,7 +104,7 @@ export default function UploadWorkPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[400px] w-full items-center justify-center">
+      <div className="flex h-100 w-full items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#2F2FE4]" />
       </div>
     );
@@ -114,7 +114,7 @@ export default function UploadWorkPage() {
   // arahkan ke halaman Manajemen Tim dulu.
   if (!hasTeam || !team) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] text-center gap-3">
+      <div className="flex flex-col items-center justify-center h-100 text-center gap-3">
         <AlertCircle className="w-10 h-10 text-slate-300" />
         <p className="text-slate-500 text-sm max-w-sm">
           Anda belum tergabung dalam tim manapun. Buat atau gabung tim terlebih
