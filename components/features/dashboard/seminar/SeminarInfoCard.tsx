@@ -17,7 +17,7 @@ export default function SeminarInfoCard({
     <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
       <CardContent className="p-0 grid grid-cols-1 lg:grid-cols-2">
         {/* Kolom Kiri: Foto Pembicara dari Poster */}
-        <div className="bg-linear-to-br from-amber-500 to-orange-600 ml-4 rounded-xl p-6 flex flex-col items-center justify-center relative min-h-80 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-200">
+        <div className="bg-linear-to-br from-amber-500 to-orange-600 mx-4 rounded-xl p-6 flex flex-col items-center justify-center relative min-h-80 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-200">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size[16px_16px]"></div>
 
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
