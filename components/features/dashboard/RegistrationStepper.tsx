@@ -12,12 +12,14 @@ interface RegistrationStepperProps {
   isProfileComplete: boolean;
   isTeamComplete: boolean;
   isPaymentComplete: boolean;
+  isSubmissionComplete: boolean;
 }
 
 export default function RegistrationStepper({
   isProfileComplete,
   isTeamComplete,
   isPaymentComplete,
+  isSubmissionComplete,
 }: RegistrationStepperProps) {
   // Tentukan status tiap step secara berurutan
   const steps = [
@@ -62,8 +64,14 @@ export default function RegistrationStepper({
     },
     {
       label: "Unggah Karya",
-      status: !isPaymentComplete ? "locked" : "active",
-      icon: isPaymentComplete ? (
+      status: !isPaymentComplete
+        ? "locked"
+        : isSubmissionComplete
+          ? "completed"
+          : "active",
+      icon: isSubmissionComplete ? (
+        <Check className="w-6 h-6" />
+      ) : isPaymentComplete ? (
         <CloudUpload className="w-5 h-5" />
       ) : (
         <Lock className="w-5 h-5" />
@@ -85,16 +93,22 @@ export default function RegistrationStepper({
       </h3>
 
       <div className="relative flex justify-between w-full max-w-4xl mx-auto">
-        {/* Garis Penghubung (Absolute di belakang, dihitung tepat dari tengah item pertama ke terakhir) */}
+        {/* Garis Penghubung */}
         <div className="absolute top-6 left-[40px] right-[40px] sm:left-[60px] sm:right-[60px] h-0.5 flex z-0">
           {steps.slice(0, -1).map((step, i) => (
-            <div key={i} className={`flex-1 h-full transition-colors duration-300 ${segmentColor[i]}`} />
+            <div
+              key={i}
+              className={`flex-1 h-full transition-colors duration-300 ${segmentColor[i]}`}
+            />
           ))}
         </div>
 
         {/* Lingkaran dan Label */}
         {steps.map((step) => (
-          <div key={step.label} className="relative flex flex-col items-center z-10 w-[80px] sm:w-[120px]">
+          <div
+            key={step.label}
+            className="relative flex flex-col items-center z-10 w-[80px] sm:w-[120px]"
+          >
             {/* Lingkaran ikon */}
             <div
               className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm transition-colors duration-300 ${

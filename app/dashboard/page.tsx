@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import RegistrationStepper from "@/components/features/dashboard/RegistrationStepper";
 import PromoBanner from "@/components/features/dashboard/PromoBanner";
@@ -11,7 +12,6 @@ import WelcomeModal from "@/components/features/dashboard/WelcomeModal";
 import CompetitionCategoryModal from "@/components/features/dashboard/CompetitionCategoryModal";
 import DashboardSkeleton from "@/components/features/dashboard/DashboardSkeleton";
 
-// Import hook profil, tim, dan pembayaran
 import { useProfile } from "@/features/profile/hooks/use-profile";
 import { useMyTeam } from "@/features/team/hooks/use-my-team";
 import { usePaymentStatus } from "@/features/payment/hooks/use-payment-status";
@@ -33,9 +33,9 @@ interface ProfileResponseData {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
-  // Ambil data user, tim, dan status pembayaran
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
   const { data: teamResponse, isLoading: isTeamLoading } = useMyTeam(true);
   const { data: paymentResponse, isLoading: isPaymentLoading } =
@@ -45,10 +45,8 @@ export default function DashboardPage() {
   const user = responseData?.user;
   const participant = user?.participant;
 
-  // Ekstrak nama
   const userName = user?.name || "Peserta IITC 2026";
 
-  // Cek kelengkapan tahapan
   const isProfileComplete = Boolean(
     user?.name &&
     user?.phone &&
@@ -57,14 +55,27 @@ export default function DashboardPage() {
     participant?.twibbon,
   );
 
-  const isTeamComplete = Boolean(teamResponse?.data?.team);
+  const teamData = teamResponse?.data?.team;
+  const isTeamComplete = Boolean(teamData);
 
-  // Cek apakah status pembayaran valid/sukses (sesuaikan string status dari backend, misal: "valid" / "success")
   const paymentStatus = paymentResponse?.data?.payment?.status;
   const isPaymentComplete =
     paymentStatus === "valid" ||
     paymentStatus === "success" ||
     paymentStatus === "VALID";
+
+  // Cek apakah submission link sudah terisi
+  const isSubmissionComplete = Boolean(
+    teamData?.submissionLink && teamData.submissionLink.trim() !== "",
+  );
+
+  const handlePromoButtonClick = () => {
+    if (isTeamComplete) {
+      router.push("/dashboard/team");
+    } else {
+      setIsCategoryModalOpen(true);
+    }
+  };
 
   if (isProfileLoading || isTeamLoading || isPaymentLoading) {
     return <DashboardSkeleton />;
@@ -91,18 +102,17 @@ export default function DashboardPage() {
           <p className="text-slate-500">Selamat datang di portal IITC 2026.</p>
         </div>
 
-        {/* Kirim status pembayaran ke RegistrationStepper */}
+        {/* Kirim isSubmissionComplete ke RegistrationStepper */}
         <RegistrationStepper
           isProfileComplete={isProfileComplete}
           isTeamComplete={isTeamComplete}
           isPaymentComplete={isPaymentComplete}
+          isSubmissionComplete={isSubmissionComplete}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex">
-            <PromoBanner
-              onIkutiLombaClick={() => setIsCategoryModalOpen(true)}
-            />
+            <PromoBanner onIkutiLombaClick={handlePromoButtonClick} />
           </div>
 
           <div className="flex flex-col gap-6">
@@ -112,7 +122,7 @@ export default function DashboardPage() {
               startDate="2026-07-01"
               targetDate="2026-08-15"
             />
-            <EmptyStateCard />
+            <EmptyStateCard team={teamData} />
           </div>
         </div>
       </motion.div>
