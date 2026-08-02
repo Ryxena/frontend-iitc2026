@@ -225,9 +225,13 @@ export default function UploadWorkPage() {
                         <span>Proposal Karya</span>
                       </div>
                       <div className="flex items-center gap-3">
+                        <FolderOpen className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span>Video Showcase</span>
+                      </div>
+                      <div className="flex items-center gap-3">
                         <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
                         <span>Surat Pernyataan Orisinalitas (Format PDF)</span>
-                      </div>
+                      </div>{" "}
                       <div className="flex items-center gap-3">
                         <PlusCircle className="w-4 h-4 text-slate-400 shrink-0" />
                         <span>Dokumentasi Teknis (Opsional)</span>
