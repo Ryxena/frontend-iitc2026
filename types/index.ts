@@ -127,6 +127,8 @@ export interface Competition {
   maxMembers: number;
   competitionPrice?: number | null; // belum terkonfirmasi ada di response
   description?: string | null; // belum terkonfirmasi ada di response
+  guidebookLink?: string | null;
+  deadline?: string | null;
 }
 
 export interface CompetitionsApiResponse {

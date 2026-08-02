@@ -99,7 +99,7 @@ export default function CompetitionCategoryModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
-      <DialogContent className="sm:max-w-[900px] p-0 overflow-hidden bg-white rounded-2xl border-none shadow-2xl">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col p-0 overflow-hidden bg-white rounded-2xl border-none shadow-2xl">
         <DialogTitle className="hidden">Pilih Kategori Lomba</DialogTitle>
 
         {/* Header Modal */}
@@ -113,7 +113,7 @@ export default function CompetitionCategoryModal({
         </div>
 
         {/* Body: Daftar Card Kategori */}
-        <div className="p-8 bg-slate-50/50 min-h-[280px]">
+        <div className="p-8 bg-slate-50/50 min-h-[280px] overflow-y-auto">
           {isLoading && (
             <div className="flex flex-col items-center justify-center h-full py-16 text-slate-400">
               <Loader2 className="w-8 h-8 animate-spin mb-3" />
