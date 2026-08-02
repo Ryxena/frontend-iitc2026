@@ -5,7 +5,7 @@ import { PromoBannerProps } from "@/types/index";
 
 export default function PromoBanner({ onIkutiLombaClick }: PromoBannerProps) {
   return (
-    <div className="w-full bg-gradient-to-br from-[#E2E1F6] to-[#D5D3F1] rounded-2xl p-8 relative overflow-hidden flex flex-col justify-center border border-indigo-50 shadow-sm">
+    <div className="w-full bg-linear-to-br from-[#E2E1F6] to-[#D5D3F1] rounded-2xl p-8 relative overflow-hidden flex flex-col justify-center border border-indigo-50 shadow-sm">
       {/* Ilustrasi Banner di Kanan Atas */}
       <div className="absolute right-0 top-0 w-64 h-full flex items-center justify-end pr-8 opacity-40 pointer-events-none">
         <div className="bg-indigo-300/30 w-24 h-24 rounded-2xl flex items-center justify-center backdrop-blur-sm -rotate-12">
