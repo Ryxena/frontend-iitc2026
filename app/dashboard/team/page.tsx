@@ -1,7 +1,7 @@
 // app/(dashboard)/dashboard/team/page.tsx
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -19,7 +19,7 @@ import { useMyTeam } from "@/features/team/hooks/use-my-team";
 import {
   useJoinTeam,
   getJoinTeamErrorMessage,
-} from "@/features/team/hooks/use-join-team"; // IMPORT HOOK JOIN TEAM
+} from "@/features/team/hooks/use-join-team";
 import {
   useDeleteTeam,
   useLeaveTeam,
@@ -29,12 +29,40 @@ import {
 
 import { useProfile } from "@/features/profile/hooks/use-profile";
 
+// Samakan key dengan yang ada di CompetitionCategoryModal
+const SELECTED_COMPETITION_STORAGE_KEY = "selectedCompetitionSlug";
+
 function TeamPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const competitionSlug = searchParams.get("competitionSlug");
+  const urlSlug = searchParams.get("competitionSlug");
 
+  // Inisialisasi awal dengan urlSlug jika ada untuk mencegah kedipan (flicker)
+  const [activeSlug, setActiveSlug] = useState<string | null>(urlSlug);
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
+
+  useEffect(() => {
+    // Gunakan setTimeout agar update state berjalan secara asinkron.
+    // Hal ini mengatasi error "cascading renders" dari linter React.
+    const timer = setTimeout(() => {
+      if (urlSlug) {
+        localStorage.setItem(SELECTED_COMPETITION_STORAGE_KEY, urlSlug);
+        setActiveSlug(urlSlug);
+
+        // Membersihkan URL agar lebih rapi tanpa mereload halaman
+        router.replace("/dashboard/team", { scroll: false });
+      } else {
+        const storedSlug = localStorage.getItem(
+          SELECTED_COMPETITION_STORAGE_KEY,
+        );
+        if (storedSlug) {
+          setActiveSlug(storedSlug);
+        }
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [urlSlug, router]);
 
   // 1. Ambil data profil user untuk menentukan email (Leader / Member)
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
@@ -65,7 +93,7 @@ function TeamPageContent() {
   const deleteMutation = useDeleteTeam();
   const leaveMutation = useLeaveTeam();
   const removeMutation = useRemoveMember();
-  const joinMutation = useJoinTeam(); // INISIALISASI MUTASI JOIN TEAM
+  const joinMutation = useJoinTeam();
 
   const leaderEmail = team?.leader?.email?.toLowerCase().trim();
   const activeUserEmail = userEmail?.toLowerCase().trim();
@@ -75,9 +103,12 @@ function TeamPageContent() {
       ? "leader"
       : "member";
 
-  const handleTeamCreated = () => router.replace("/dashboard/team");
+  const handleTeamCreated = () => {
+    // Opsional: Hapus slug dari local storage setelah berhasil buat tim
+    // localStorage.removeItem(SELECTED_COMPETITION_STORAGE_KEY);
+    router.replace("/dashboard/team");
+  };
 
-  // FUNGSI UTAMA KETIKA TOMBOL GABUNG DIKLIK
   const handleTeamJoined = (code: string) => {
     joinMutation.mutate(
       { code },
@@ -128,7 +159,7 @@ function TeamPageContent() {
           isOpen={isCreateTeamOpen}
           onClose={() => setIsCreateTeamOpen(false)}
           onCreateTeam={handleTeamCreated}
-          competitionSlug={competitionSlug}
+          competitionSlug={activeSlug} // Gunakan activeSlug
         />
       )}
       {hasTeam && team ? (
@@ -137,7 +168,7 @@ function TeamPageContent() {
           role={role}
           teamCode={team.code}
           competitionName={competition}
-          guideBookUrl={team?.competition?.guide_book} // <-- Teruskan URL guidebook di sini
+          guideBookUrl={team?.competition?.guide_book}
           leader={team.leader}
           members={members}
           currentUserEmail={userEmail}
@@ -179,7 +210,8 @@ function TeamPageContent() {
               </p>
             </div>
 
-            {!competitionSlug && (
+            {/* Validasi menggunakan activeSlug */}
+            {!activeSlug && (
               <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
                 Anda belum memilih lomba. Silakan pilih lomba terlebih dahulu
                 dari halaman Dashboard sebelum membuat tim baru.
@@ -189,7 +221,7 @@ function TeamPageContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
               <CreateTeamCard
                 onClick={() => setIsCreateTeamOpen(true)}
-                disabled={!competitionSlug}
+                disabled={!activeSlug} // Disable jika tidak ada slug aktif
               />
               <JoinTeamCard
                 onJoin={handleTeamJoined}
