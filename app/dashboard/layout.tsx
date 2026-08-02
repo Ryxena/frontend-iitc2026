@@ -28,21 +28,19 @@ const menuItems = [
   { icon: Wallet, label: "Pembayaran", href: "/dashboard/payment" },
   { icon: CloudUpload, label: "Unggah Karya", href: "/dashboard/submission" },
   { icon: GraduationCap, label: "Seminar", href: "/dashboard/seminar" },
-  // { icon: BadgeCheck, label: "Sertifikat", href: "/dashboard/sertificate" },
 ];
 
-// Isi sidebar dipisah jadi komponen sendiri supaya bisa dipakai ulang
-// baik di sidebar desktop (statis) maupun di dalam Sheet (drawer mobile).
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const logoutMutation = useLogout();
 
   const handleLogout = () => {
-    // Tutup drawer mobile dulu (kalau ada) sebelum proses logout jalan,
-    // biar gak ada flicker UI drawer nutup bareng redirect.
     onNavigate?.();
     logoutMutation.mutate();
   };
+
+  // Cek apakah halaman profil sedang aktif
+  const isActiveProfile = pathname === "/dashboard/profile";
 
   return (
     <div className="flex flex-col justify-between h-full">
@@ -92,25 +90,23 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* Bottom Menu */}
       <div className="pb-8 px-6 pt-6 space-y-1 border-t border-slate-200 mx-6">
-        {/* Sebelumnya "Settings" dengan icon gear, href "/dashboard/pengaturan-akun".
-            Diganti jadi "Profil" (konsisten bahasa Indonesia & gaya label
-            singkat seperti menu lain di atas) + icon CircleUserRound
-            (lebih pas secara makna karena halamannya isinya foto profil,
-            data diri, password — bukan pengaturan sistem) + href
-            "/dashboard/profile" (konsisten bahasa Inggris sama route
-            dashboard lain: /dashboard/team, /dashboard/payment, dst). */}
         <Link
           href="/dashboard/profile"
           onClick={onNavigate}
-          className="flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          // Tambahkan logika dynamic class di sini
+          className={`relative flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+            isActiveProfile
+              ? "text-[#2F2FE4] bg-blue-50 font-semibold"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          }`}
         >
-          <CircleUserRound className="w-5 h-5" /> Profil
+          {/* Indikator bar biru saat aktif */}
+          {isActiveProfile && (
+            <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-full bg-[#2F2FE4]" />
+          )}
+          <CircleUserRound className="w-5 h-5 shrink-0" /> Profil
         </Link>
 
-        {/* Tombol logout — sengaja pakai <button>, bukan <Link>, karena ini
-            memicu aksi (POST ke server + hapus cookie httpOnly), bukan
-            navigasi murni. Link ke "/" sebelumnya TIDAK benar-benar logout
-            — token httpOnly tetap ada, cuma pindah halaman. */}
         <button
           type="button"
           onClick={handleLogout}
@@ -158,7 +154,6 @@ export default function DashboardLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="h-20 bg-[#F8FAFC] flex items-center justify-between md:justify-end px-4 sm:px-8 gap-4 sm:gap-6 border-b border-slate-200">
-          {/* Tombol hamburger, hanya tampil di mobile */}
           <button
             onClick={() => setMobileNavOpen(true)}
             className="md:hidden text-slate-600 hover:text-slate-900 transition-colors"
