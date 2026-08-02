@@ -137,9 +137,10 @@ function TeamPageContent() {
           role={role}
           teamCode={team.code}
           competitionName={competition}
+          guideBookUrl={team?.competition?.guide_book} // <-- Teruskan URL guidebook di sini
           leader={team.leader}
           members={members}
-          currentUserEmail={userEmail} // <-- TERUSKAN EMAIL INI KE DASHBOARD
+          currentUserEmail={userEmail}
           onLeaveTeam={handleLeaveTeam}
           onDeleteTeam={handleDeleteTeam}
           onRemoveMember={handleRemoveMember}
