@@ -22,7 +22,8 @@ import SuccessModal from "@/components/features/dashboard/submission/SuccessModa
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
 import SubmissionStatusBadge from "@/components/features/dashboard/submission/SubmissionStatusBadge";
 import SubmissionSkeleton from "@/components/features/dashboard/submission/SubmissionSkeleton";
-import TwibbonRequirementModal from "@/components/features/dashboard/payment/TwibbonRequirementModal"; // Import modal twibbon
+import TwibbonRequirementModal from "@/components/features/dashboard/payment/TwibbonRequirementModal";
+import SubmissionPeriodModal from "@/components/features/dashboard/submission/SubmissionPeriodModal"; // Import modal baru
 import {
   getRequirementGroup,
   RequirementList,
@@ -51,7 +52,6 @@ interface ExtendedProfileUser {
 
 const VALID_PAYMENT_STATUSES = ["valid", "success", "accepted"];
 
-// Helper untuk mengambil link grup WhatsApp berdasarkan lomba (sama seperti di halaman payment)
 const WHATSAPP_GROUP_BY_COMPETITION: { keywords: string[]; url: string }[] = [
   {
     keywords: ["web design", "webdesign"],
@@ -76,12 +76,32 @@ function getWhatsAppGroupUrl(competitionName?: string): string {
   return match?.url ?? "#";
 }
 
+function computeSubmissionTimeStatus(): "before" | "after" | "active" {
+  const now = new Date();
+  // Jadwal Unggah Karya: 19 Agustus 2026 00:00:00 WIB hingga 27 Agustus 2026 23:59:59 WIB
+  const startDate = new Date("2026-08-19T00:00:00+07:00");
+  const endDate = new Date("2026-08-27T23:59:59+07:00");
+
+  if (now < startDate) return "before";
+  if (now > endDate) return "after";
+  return "active";
+}
+
 export default function UploadWorkPage() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [userEditedLink, setUserEditedLink] = useState<string | null>(null);
-
-  // State untuk melacak apakah user menutup modal secara manual di sesi ini
   const [isModalDismissed, setIsModalDismissed] = useState(false);
+
+  // Dihitung sekali saat komponen mount lewat lazy initializer (fungsi ini
+  // hanya dipanggil sekali oleh React, bukan tiap render) — bukan di
+  // useEffect, supaya tidak memicu "setState synchronously within an
+  // effect". Nggak butuh state "checking" lagi karena hitungannya instan
+  // (bukan operasi async), jadi timeStatus sudah pasti terisi sejak
+  // render pertama.
+  // Referensi: https://react.dev/learn/you-might-not-need-an-effect
+  const [timeStatus] = useState<"before" | "after" | "active">(
+    computeSubmissionTimeStatus,
+  );
 
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
   const { data: myTeamsSummary, isLoading: isSummaryLoading } =
@@ -100,7 +120,6 @@ export default function UploadWorkPage() {
   const participant = user?.participant;
   const userEmail = user?.email;
 
-  // Profil dasar (untuk StepGuard agar halaman tetap bisa dirender)
   const isProfileComplete = Boolean(
     user?.name &&
     user?.phone &&
@@ -116,12 +135,14 @@ export default function UploadWorkPage() {
     paymentStatus && VALID_PAYMENT_STATUSES.includes(paymentStatus),
   );
 
-  // Status Twibbon
   const hasTwibbon = Boolean(participant?.twibbon);
 
-  // Munculkan modal otomatis jika pembayaran sudah selesai TAPI belum ada twibbon dan belum ditutup manual
+  // Munculkan modal otomatis TAPI HANYA JIKA dalam batas rentang waktu submit (timeStatus === "active")
   const showTwibbonModal =
-    isPaymentComplete && !hasTwibbon && !isModalDismissed;
+    timeStatus === "active" &&
+    isPaymentComplete &&
+    !hasTwibbon &&
+    !isModalDismissed;
 
   const isLeader = Boolean(
     team?.leader?.email &&
@@ -142,11 +163,12 @@ export default function UploadWorkPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!driveLink.trim() || !team || !isLeader) return;
+    if (!driveLink.trim() || !team || !isLeader || timeStatus !== "active")
+      return;
 
     // VALIDASI TAMBAHAN: Jika belum upload twibbon, cegah submit dan buka modal
     if (!hasTwibbon) {
-      setIsModalDismissed(false); // Reset status dismiss agar modal muncul kembali
+      setIsModalDismissed(false);
       return;
     }
 
@@ -172,6 +194,12 @@ export default function UploadWorkPage() {
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center">
+      {/* Modal Pengecekan Batas Waktu Submit (19 - 27 Agt) */}
+      <SubmissionPeriodModal
+        isOpen={timeStatus === "before" || timeStatus === "after"}
+        status={timeStatus}
+      />
+
       <StepGuardModal
         isProfileComplete={isProfileComplete}
         isTeamComplete={isTeamComplete}
