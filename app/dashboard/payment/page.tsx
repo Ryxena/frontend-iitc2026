@@ -105,8 +105,7 @@ export default function PaymentPage() {
     user?.name &&
     user?.phone &&
     participant?.institution &&
-    participant?.gender &&
-    participant?.twibbon,
+    participant?.gender,
   );
 
   // Evaluasi Tim

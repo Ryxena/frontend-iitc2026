@@ -80,8 +80,7 @@ function TeamPageContent() {
     user?.name &&
     user?.phone &&
     participant?.institution &&
-    participant?.gender &&
-    participant?.twibbon,
+    participant?.gender,
   );
 
   const { data: myTeamsSummary, isLoading: isSummaryLoading } =

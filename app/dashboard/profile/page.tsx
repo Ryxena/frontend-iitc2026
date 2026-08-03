@@ -1,6 +1,8 @@
+// app/(dashboard)/dashboard/profile/page.tsx
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // Tambahkan import useRouter
 import { motion } from "framer-motion";
 import maskotIITC from "@/public/Maskot2.svg";
 import { Button } from "@/components/ui/button";
@@ -78,6 +80,7 @@ function deriveProfileState(
 
 export default function ProfilePage() {
   const queryClient = useQueryClient();
+  const router = useRouter(); // Inisialisasi router
 
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
   const { data: teamResponse } = useMyTeam(true);
@@ -161,6 +164,9 @@ export default function ProfilePage() {
         setAvatarFile(null);
         setTwibbonFile(null);
         queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+
+        // Redirect ke halaman dashboard
+        router.push("/dashboard");
       },
       onError: (error) => toast.error(getProfileErrorMessage(error)),
     });
@@ -175,7 +181,6 @@ export default function ProfilePage() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      // Mengganti max-w-5xl mx-auto dengan w-full agar lebarnya konsisten penuh mengikuti padding layout utama dashboard
       className="w-full space-y-6 relative z-10 pb-12"
     >
       <div>
