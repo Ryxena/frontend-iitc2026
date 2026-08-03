@@ -15,9 +15,9 @@ export default function SeminarInfoCard({
 }: SeminarInfoCardProps) {
   return (
     <Card className="border-slate-200 shadow-sm rounded-2xl overflow-hidden bg-white">
-      <CardContent className="p-0 grid grid-cols-1 lg:grid-cols-2">
+      <CardContent className="p-0 grid grid-cols-1 lg:grid-cols-5">
         {/* Kolom Kiri: Foto Pembicara dari Poster */}
-        <div className="bg-linear-to-br from-amber-500 to-orange-600 mx-4 rounded-xl p-6 flex flex-col items-center justify-center relative min-h-80 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-200">
+        <div className="bg-linear-to-br from-amber-500 to-orange-600 lg:col-span-2 mx-4 rounded-xl p-6 flex flex-col items-center justify-center relative min-h-80 overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-200">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] bg-size[16px_16px]"></div>
 
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
@@ -38,7 +38,7 @@ export default function SeminarInfoCard({
         </div>
 
         {/* Kolom Kanan: Detail Seminar */}
-        <div className="p-8 flex flex-col justify-center space-y-5">
+        <div className="p-8 flex flex-col justify-center space-y-5 lg:col-span-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1a0b8c] bg-indigo-50 px-3 py-1 rounded-md">
               <Calendar className="w-3.5 h-3.5" />
