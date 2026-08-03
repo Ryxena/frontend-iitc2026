@@ -23,12 +23,11 @@ const InstagramIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 const socialIcons = [
-  // !TODO Change Whatsapp icon
-  { icon: Mail, href: "wa.me/6285133711081", label: "Email" },
+  // !TODO Change Tiktok icon
+  { icon: Mail, href: "https://www.tiktok.com/@iitc_intermedia", label: "Email" },
   { icon: Globe, href: "https://www.intermediaamikom.org/", label: "Website" },
   { icon: InstagramIcon, href: "https://www.instagram.com/iitc_intermedia/", label: "Instagram" },
-  // !TODO Change Tiktok Icon
-  { icon: MessageSquare, href: "https://www.tiktok.com/@iitc_intermedia?is_from_webapp=1&sender_device=pc", label: "Forum" }
+  { icon: MessageSquare, href: "wa.me/6285133711081", label: "Whatsapp" }
 ];
 
 export default function Footer() {
