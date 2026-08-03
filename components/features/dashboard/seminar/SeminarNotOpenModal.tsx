@@ -18,7 +18,7 @@ export default function SeminarNotOpenModal({
 }: SeminarNotOpenModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden bg-white rounded-2xl border-none shadow-2xl flex flex-col">
+      <DialogContent className="sm:max-w-112.5 p-0 overflow-hidden bg-white rounded-2xl border-none shadow-2xl [&>button]:hidden flex flex-col">
         <DialogTitle className="hidden">Pendaftaran Belum Dibuka</DialogTitle>
 
         {/* Header Modal */}
