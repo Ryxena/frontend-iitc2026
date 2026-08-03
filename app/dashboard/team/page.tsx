@@ -1,3 +1,4 @@
+// app/(dashboard)/dashboard/team/page.tsx
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
@@ -208,7 +209,7 @@ function TeamPageContent() {
                 </div>
               </div>
 
-              {/* Menggunakan w-full space-y-10 pb-12 agar lebarnya konsisten dengan Dashboard */}
+              {/* Mengganti max-w-5xl mx-auto dengan w-full agar konsisten penuh */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}

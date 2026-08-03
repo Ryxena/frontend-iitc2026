@@ -1,3 +1,4 @@
+// ActiveTeamDashboard.tsx (atau file tempat komponen ini didefinisikan)
 "use client";
 
 import { useState } from "react";
@@ -10,7 +11,6 @@ import RemoveMemberModal from "@/components/features/dashboard/team/RemoveMember
 import LeaveTeamModal from "@/components/features/dashboard/team/LeaveTeamModal";
 import { ActiveTeamDashboardProps } from "@/types/index";
 
-// Import modular components dari folder active
 import {
   LeaderOwnCard,
   RemovableMemberCard,
@@ -117,7 +117,8 @@ export default function ActiveTeamDashboard({
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-5xl mx-auto space-y-8 relative z-10"
+        // Mengganti max-w-5xl mx-auto dengan w-full agar konsisten penuh mengikuti layout utama
+        className="w-full space-y-10 relative z-10 pb-12"
       >
         {/* HEADER */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

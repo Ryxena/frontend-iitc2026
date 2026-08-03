@@ -1,3 +1,4 @@
+// app/(dashboard)/dashboard/payment/page.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -147,7 +148,8 @@ export default function PaymentPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="w-full max-w-6xl mx-auto space-y-8 relative z-10"
+          // Mengganti max-w-6xl mx-auto dengan w-full agar lebarnya konsisten penuh mengikuti padding layout utama
+          className="w-full space-y-10 relative z-10 pb-12"
         >
           <div>
             <h1 className="text-3xl font-bold text-slate-900 mb-2">

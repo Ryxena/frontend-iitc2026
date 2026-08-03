@@ -1,4 +1,3 @@
-// app/(dashboard)/dashboard/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -93,7 +92,8 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="max-w-6xl mx-auto space-y-8"
+        // Mengganti max-w-6xl mx-auto dengan w-full agar lebarnya konsisten penuh mengikuti padding layout utama
+        className="w-full space-y-10 relative z-10 pb-12"
       >
         <div>
           <h1 className="text-3xl font-bold text-slate-900 mb-1">

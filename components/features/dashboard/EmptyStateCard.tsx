@@ -54,7 +54,7 @@ export default function EmptyStateCard({ team }: EmptyStateCardProps) {
           <h3 className="font-semibold text-slate-900 text-sm mb-1">
             Kompetisi yang Diikuti
           </h3>
-          <p className="text-xs text-slate-500 max-w-[200px]">
+          <p className="text-xs text-slate-500 max-w-50">
             Anda belum terdaftar di lomba apapun.
           </p>
         </>
