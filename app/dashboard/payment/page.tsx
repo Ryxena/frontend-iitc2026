@@ -1,8 +1,7 @@
-// app/(dashboard)/dashboard/payment/page.tsx
 "use client";
 
 import { motion } from "framer-motion";
-import { Landmark, Wallet, Loader2 } from "lucide-react";
+import { Landmark, Wallet } from "lucide-react";
 
 import LeaderAlert from "@/components/features/dashboard/payment/LeaderAlert";
 import PaymentStatus from "@/components/features/dashboard/payment/PaymentStatus";
@@ -11,6 +10,7 @@ import UploadProof from "@/components/features/dashboard/payment/UploadProof";
 import PaymentInstructions from "@/components/features/dashboard/payment/PaymentInstructions";
 import WhatsAppGroupCard from "@/components/features/dashboard/payment/WhatsAppGroupCard";
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
+import PaymentPageSkeleton from "@/components/features/dashboard/payment/PaymentPageSkeleton";
 
 // Import hooks
 import { usePaymentStatus } from "@/features/payment/hooks/use-payment-status";
@@ -128,8 +128,8 @@ export default function PaymentPage() {
 
   if (isStatusLoading || isTeamLoading || isProfileLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] text-slate-500">
-        <Loader2 className="w-6 h-6 animate-spin mr-2" /> Memuat data...
+      <div className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center pt-8">
+        <PaymentPageSkeleton />
       </div>
     );
   }

@@ -1,4 +1,3 @@
-// app/(dashboard)/dashboard/submission/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -21,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import SuccessModal from "@/components/features/dashboard/submission/SuccessModal";
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
 import SubmissionStatusBadge from "@/components/features/dashboard/submission/SubmissionStatusBadge";
+import SubmissionSkeleton from "@/components/features/dashboard/submission/SubmissionSkeleton";
 import {
   getRequirementGroup,
   RequirementList,
@@ -66,7 +66,6 @@ export default function UploadWorkPage() {
 
   const submitMutation = useSubmitTeamWork();
 
-  // Menggunakan interface yang aman dari pada tipe `any` agar lolos linter rule `@typescript-eslint/no-explicit-any`
   const user = profileResponse?.data?.user as ExtendedProfileUser | undefined;
   const participant = user?.participant;
   const userEmail = user?.email;
@@ -118,11 +117,7 @@ export default function UploadWorkPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-100 w-full items-center justify-center min-h-[calc(100vh-5rem)]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#2F2FE4]" />
-      </div>
-    );
+    return <SubmissionSkeleton />;
   }
 
   const competition = team?.competition;
@@ -149,7 +144,7 @@ export default function UploadWorkPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="w-full max-w-5xl mx-auto space-y-10 relative z-10 pb-12"
+          className="w-full space-y-10 relative z-10 pb-12"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>

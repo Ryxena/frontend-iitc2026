@@ -1,4 +1,3 @@
-// app/(dashboard)/dashboard/team/page.tsx
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
@@ -13,6 +12,7 @@ import JoinTeamCard from "@/components/features/dashboard/team/JoinTeamCard";
 import CreateTeamModal from "@/components/features/dashboard/team/CreateTeamModal";
 import ActiveTeamDashboard from "@/components/features/dashboard/team/ActiveTeamDashboard";
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
+import TeamPageSkeleton from "@/components/features/dashboard/team/TeamPageSkeleton";
 
 // Hooks
 import { useMyCompetitions } from "@/features/team/hooks/use-my-competitions";
@@ -152,8 +152,8 @@ function TeamPageContent() {
 
   if (isSummaryLoading || isDetailLoading || isProfileLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] text-slate-400 text-sm">
-        Memuat data...
+      <div className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center pt-8">
+        <TeamPageSkeleton />
       </div>
     );
   }
@@ -253,7 +253,7 @@ function TeamPageContent() {
 
 export default function TeamPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<TeamPageSkeleton />}>
       <TeamPageContent />
     </Suspense>
   );
