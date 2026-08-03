@@ -23,9 +23,6 @@ const GENDER_OPTIONS = [
   { value: "female", label: "Perempuan" },
 ] as const;
 
-// Field teks biasa (Nama Lengkap, Asal Sekolah, NISN/NIM) semuanya punya
-// struktur identik: Label + Input dengan styling sama. Diekstrak ke sini
-// supaya JSX di komponen utama gak duplikasi 3x class string yang sama.
 interface TextFieldProps {
   id: string;
   label: string;
@@ -83,11 +80,11 @@ export default function ProfileInfoForm({
 
       <TextField
         id="institution"
-        label="Asal Sekolah/Instansi"
+        label="Asal Sekolah"
         required
         value={values.institution}
         onChange={(value) => setField("institution", value)}
-        placeholder="Nama sekolah atau kampus"
+        placeholder="Nama sekolah"
       />
 
       <div className="space-y-2">
@@ -124,10 +121,10 @@ export default function ProfileInfoForm({
 
       <TextField
         id="nisnOrNim"
-        label="NISN / NIM (Opsional)"
+        label="NISN (Opsional)"
         value={values.nisnOrNim}
         onChange={(value) => setField("nisnOrNim", value)}
-        placeholder="Masukkan NISN atau NIM"
+        placeholder="Masukkan NISN"
       />
 
       <div className="space-y-2">

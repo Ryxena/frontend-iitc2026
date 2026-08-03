@@ -1,3 +1,4 @@
+// app/(dashboard)/dashboard/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -46,13 +47,16 @@ export default function DashboardPage() {
 
   const userName = user?.name || "Peserta IITC 2026";
 
+  // Syarat dasar data diri agar bisa lanjut ke step Bentuk Tim (Twibbon TIDAK Wajib di sini)
   const isProfileComplete = Boolean(
     user?.name &&
     user?.phone &&
     participant?.institution &&
-    participant?.gender &&
-    participant?.twibbon,
+    participant?.gender,
   );
+
+  // Cek apakah twibbon sudah terunggah sepenuhnya
+  const hasTwibbon = Boolean(participant?.twibbon);
 
   const teamData = teamResponse?.data?.team;
   const isTeamComplete = Boolean(teamData);
@@ -63,7 +67,6 @@ export default function DashboardPage() {
     paymentStatus === "success" ||
     paymentStatus === "VALID";
 
-  // Cek apakah submission link sudah terisi
   const isSubmissionComplete = Boolean(
     teamData?.submissionLink && teamData.submissionLink.trim() !== "",
   );
@@ -82,6 +85,7 @@ export default function DashboardPage() {
 
   return (
     <>
+      {/* WelcomeModal menggunakan parameter apakah data diri sudah lengkap */}
       <WelcomeModal userName={userName} isProfileComplete={isProfileComplete} />
       <CompetitionCategoryModal
         isOpen={isCategoryModalOpen}
@@ -92,7 +96,6 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        // Mengganti max-w-6xl mx-auto dengan w-full agar lebarnya konsisten penuh mengikuti padding layout utama
         className="w-full space-y-10 relative z-10 pb-12"
       >
         <div>
@@ -102,9 +105,10 @@ export default function DashboardPage() {
           <p className="text-slate-500">Selamat datang di portal IITC 2026.</p>
         </div>
 
-        {/* Kirim isSubmissionComplete ke RegistrationStepper */}
+        {/* Kirim status kelengkapan profil dasar + status twibbon ke RegistrationStepper */}
         <RegistrationStepper
           isProfileComplete={isProfileComplete}
+          hasTwibbon={hasTwibbon}
           isTeamComplete={isTeamComplete}
           isPaymentComplete={isPaymentComplete}
           isSubmissionComplete={isSubmissionComplete}
@@ -119,8 +123,8 @@ export default function DashboardPage() {
             <DeadlineCard
               label="Tenggat Waktu"
               title="Batas Akhir Pengumpulan Karya"
-              startDate="2026-07-01"
-              targetDate="2026-08-15"
+              startDate="2026-08-09"
+              targetDate="2026-08-27"
             />
             <EmptyStateCard team={teamData} />
           </div>

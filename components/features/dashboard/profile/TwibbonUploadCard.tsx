@@ -1,18 +1,15 @@
+// components/features/dashboard/profile/TwibbonUploadCard.tsx
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
 import { UploadCloud } from "lucide-react";
 
-// Dibatasi png/jpg/jpeg aja,
 const ACCEPTED_TWIBBON_TYPES = "image/jpeg,image/png";
 
 interface TwibbonUploadCardProps {
   file: File | null;
   onSelectFile: (file: File) => void;
-  // URL twibbon yang SUDAH tersimpan di server (dari GET /api/profile).
-  // Dipakai buat preview awal sebelum user ganti file apa pun — sama
-  // perannya kayak `avatarUrl` di ProfileAvatarCard.
   existingUrl?: string | null;
 }
 
@@ -36,7 +33,6 @@ export default function TwibbonUploadCard({
     };
   }, [localPreviewUrl]);
 
-  // Prioritas: file yang baru dipilih user > yang udah ada di server.
   const displayUrl = localPreviewUrl || existingUrl || null;
 
   const handleTriggerUpload = useCallback(() => {
