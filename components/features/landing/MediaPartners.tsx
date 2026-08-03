@@ -24,7 +24,8 @@ export default function MediaPartners() {
     : [];
 
   useEffect(() => {
-    if (!trackRef.current || !hasPartners) return;
+    //drive.google.com/drive/folders/1AsiOH5RBE1CLgXUZXHRGG17j48tMKKt-
+    https: if (!trackRef.current || !hasPartners) return;
 
     const measure = () => {
       const totalWidth = trackRef.current?.scrollWidth ?? 0;

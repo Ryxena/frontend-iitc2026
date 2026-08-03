@@ -287,7 +287,7 @@ export default function SponsorPage() {
             </p>
           </div>
           <a
-            href="mailto:sponsorship@iitc2026.com"
+            href="mailto:iitc.intermedia@gmail.com"
             className="inline-flex items-center gap-2 bg-white text-[#2F2FE4] font-bold px-7 py-3.5 rounded-full hover:bg-blue-50 transition-colors whitespace-nowrap shadow-sm"
           >
             <Mail className="w-5 h-5" /> Hubungi Kami
