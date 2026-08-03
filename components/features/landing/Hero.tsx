@@ -7,7 +7,7 @@ import maskotIITC from "@/public/Maskot2.svg";
 
 export default function Hero() {
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32 flex flex-col-reverse lg:flex-row items-center gap-12">
+    <section className="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32 flex flex-col-reverse lg:flex-row items-center gap-12">
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
