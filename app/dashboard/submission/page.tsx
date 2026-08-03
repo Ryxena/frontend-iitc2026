@@ -1,3 +1,4 @@
+// app/(dashboard)/dashboard/submission/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -21,6 +22,7 @@ import SuccessModal from "@/components/features/dashboard/submission/SuccessModa
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
 import SubmissionStatusBadge from "@/components/features/dashboard/submission/SubmissionStatusBadge";
 import SubmissionSkeleton from "@/components/features/dashboard/submission/SubmissionSkeleton";
+import TwibbonRequirementModal from "@/components/features/dashboard/payment/TwibbonRequirementModal"; // Import modal twibbon
 import {
   getRequirementGroup,
   RequirementList,
@@ -49,9 +51,37 @@ interface ExtendedProfileUser {
 
 const VALID_PAYMENT_STATUSES = ["valid", "success", "accepted"];
 
+// Helper untuk mengambil link grup WhatsApp berdasarkan lomba (sama seperti di halaman payment)
+const WHATSAPP_GROUP_BY_COMPETITION: { keywords: string[]; url: string }[] = [
+  {
+    keywords: ["web design", "webdesign"],
+    url: "https://chat.whatsapp.com/GPk3ial29LvHRkYGdNmIe3",
+  },
+  {
+    keywords: ["ui/ux", "uiux", "ui"],
+    url: "https://chat.whatsapp.com/HgPrSs3uZ32AYGCE8myQh4",
+  },
+  {
+    keywords: ["gen ai", "genai", "ai"],
+    url: "https://chat.whatsapp.com/HA3xyTpiNnuIsCPQFwEY3C",
+  },
+];
+
+function getWhatsAppGroupUrl(competitionName?: string): string {
+  if (!competitionName) return "#";
+  const name = competitionName.toLowerCase();
+  const match = WHATSAPP_GROUP_BY_COMPETITION.find((entry) =>
+    entry.keywords.some((keyword) => name.includes(keyword)),
+  );
+  return match?.url ?? "#";
+}
+
 export default function UploadWorkPage() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [userEditedLink, setUserEditedLink] = useState<string | null>(null);
+
+  // State untuk melacak apakah user menutup modal secara manual di sesi ini
+  const [isModalDismissed, setIsModalDismissed] = useState(false);
 
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
   const { data: myTeamsSummary, isLoading: isSummaryLoading } =
@@ -70,6 +100,7 @@ export default function UploadWorkPage() {
   const participant = user?.participant;
   const userEmail = user?.email;
 
+  // Profil dasar (untuk StepGuard agar halaman tetap bisa dirender)
   const isProfileComplete = Boolean(
     user?.name &&
     user?.phone &&
@@ -84,6 +115,13 @@ export default function UploadWorkPage() {
   const isPaymentComplete = Boolean(
     paymentStatus && VALID_PAYMENT_STATUSES.includes(paymentStatus),
   );
+
+  // Status Twibbon
+  const hasTwibbon = Boolean(participant?.twibbon);
+
+  // Munculkan modal otomatis jika pembayaran sudah selesai TAPI belum ada twibbon dan belum ditutup manual
+  const showTwibbonModal =
+    isPaymentComplete && !hasTwibbon && !isModalDismissed;
 
   const isLeader = Boolean(
     team?.leader?.email &&
@@ -106,6 +144,12 @@ export default function UploadWorkPage() {
     e.preventDefault();
     if (!driveLink.trim() || !team || !isLeader) return;
 
+    // VALIDASI TAMBAHAN: Jika belum upload twibbon, cegah submit dan buka modal
+    if (!hasTwibbon) {
+      setIsModalDismissed(false); // Reset status dismiss agar modal muncul kembali
+      return;
+    }
+
     submitMutation.mutate(
       { submission: driveLink },
       {
@@ -120,9 +164,11 @@ export default function UploadWorkPage() {
   }
 
   const competition = team?.competition;
+  const competitionName = competition?.name || competition?.title || "";
   const compSlug = competition?.slug?.toLowerCase() || "";
   const requirementGroup = getRequirementGroup(compSlug);
   const RequirementIcon = requirementGroup.icon;
+  const whatsappGroupUrl = getWhatsAppGroupUrl(competitionName);
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center">
@@ -131,6 +177,13 @@ export default function UploadWorkPage() {
         isTeamComplete={isTeamComplete}
         isPaymentComplete={isPaymentComplete}
         requiredStep="submission"
+      />
+
+      {/* Modal Wajib Upload Twibbon */}
+      <TwibbonRequirementModal
+        isOpen={showTwibbonModal}
+        onClose={() => setIsModalDismissed(true)}
+        whatsappUrl={whatsappGroupUrl}
       />
 
       <SuccessModal

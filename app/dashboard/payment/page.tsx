@@ -1,6 +1,7 @@
 // app/(dashboard)/dashboard/payment/page.tsx
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Landmark, Wallet } from "lucide-react";
 
@@ -12,6 +13,7 @@ import PaymentInstructions from "@/components/features/dashboard/payment/Payment
 import WhatsAppGroupCard from "@/components/features/dashboard/payment/WhatsAppGroupCard";
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
 import PaymentPageSkeleton from "@/components/features/dashboard/payment/PaymentPageSkeleton";
+import TwibbonRequirementModal from "@/components/features/dashboard/payment/TwibbonRequirementModal";
 
 // Import hooks
 import { usePaymentStatus } from "@/features/payment/hooks/use-payment-status";
@@ -97,6 +99,9 @@ export default function PaymentPage() {
   const { data: statusResponse, isLoading: isStatusLoading } =
     usePaymentStatus();
 
+  // State HANYA untuk melacak apakah user sudah menutup modal secara manual di sesi ini
+  const [isModalDismissed, setIsModalDismissed] = useState(false);
+
   // Evaluasi Profil dengan casting aman
   const user = profileResponse?.data?.user as ExtendedProfileUser | undefined;
   const participant = user?.participant;
@@ -120,6 +125,14 @@ export default function PaymentPage() {
     currentStatus?.toUpperCase() ?? "",
   );
 
+  // Mengecek apakah user sudah upload twibbon di profilnya
+  const hasTwibbon = Boolean(participant?.twibbon);
+
+  // Turunkan nilai boolean langsung (Derived State).
+  // Tampil JIKA: Terverifikasi DAN Belum ada twibbon DAN Belum ditutup manual
+  const showTwibbonModal =
+    isPaymentVerified && !hasTwibbon && !isModalDismissed;
+
   // Data Kompetisi
   const competition = team?.competition;
   const competitionName = competition?.name || competition?.title || "";
@@ -142,12 +155,18 @@ export default function PaymentPage() {
         requiredStep="payment"
       />
 
+      {/* Render pop-up Modal */}
+      <TwibbonRequirementModal
+        isOpen={showTwibbonModal}
+        onClose={() => setIsModalDismissed(true)}
+        whatsappUrl={whatsappGroupUrl}
+      />
+
       {isProfileComplete && isTeamComplete && (
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          // Mengganti max-w-6xl mx-auto dengan w-full agar lebarnya konsisten penuh mengikuti padding layout utama
           className="w-full space-y-10 relative z-10 pb-12"
         >
           <div>

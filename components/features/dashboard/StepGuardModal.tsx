@@ -75,7 +75,7 @@ export default function StepGuardModal(props: StepGuardModalProps) {
   return (
     <Dialog open={isOpen}>
       <DialogContent
-        className="sm:max-w-[400px] p-8 rounded-2xl border-none shadow-2xl bg-white [&>button]:hidden flex flex-col items-center text-center outline-none"
+        className="sm:max-w-100 p-8 rounded-2xl border-none shadow-2xl bg-white [&>button]:hidden flex flex-col items-center text-center outline-none"
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >

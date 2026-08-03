@@ -10,6 +10,7 @@ import {
 
 interface RegistrationStepperProps {
   isProfileComplete: boolean;
+  hasTwibbon: boolean;
   isTeamComplete: boolean;
   isPaymentComplete: boolean;
   isSubmissionComplete: boolean;
@@ -17,16 +18,20 @@ interface RegistrationStepperProps {
 
 export default function RegistrationStepper({
   isProfileComplete,
+  hasTwibbon,
   isTeamComplete,
   isPaymentComplete,
   isSubmissionComplete,
 }: RegistrationStepperProps) {
-  // Tentukan status tiap step secara berurutan
+  // Profil dianggap 100% selesai jika data diri DAN twibbon lengkap
+  const isFullProfileCompleted = isProfileComplete && hasTwibbon;
+
   const steps = [
     {
       label: "Lengkapi Profil",
-      status: isProfileComplete ? "completed" : "active",
-      icon: isProfileComplete ? (
+      // Jika data diri sudah lengkap tapi twibbon belum ada, statusnya tetap 'active' (belum selesai sempurna)
+      status: isFullProfileCompleted ? "completed" : "active",
+      icon: isFullProfileCompleted ? (
         <Check className="w-6 h-6" />
       ) : (
         <UserPen className="w-5 h-5" />
@@ -34,6 +39,7 @@ export default function RegistrationStepper({
     },
     {
       label: "Bentuk Tim",
+      // Step ini terbuka (tidak locked) asalkan data diri dasar (isProfileComplete) sudah terpenuhi
       status: !isProfileComplete
         ? "locked"
         : isTeamComplete
