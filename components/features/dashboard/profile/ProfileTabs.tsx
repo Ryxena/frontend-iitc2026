@@ -1,4 +1,3 @@
-// components/features/dashboard/profile/ProfileTabs.tsx
 "use client";
 
 const TABS = [{ id: "profil", label: "Profil" }];

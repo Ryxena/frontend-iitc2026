@@ -57,8 +57,6 @@ interface DerivedProfileState {
   twibbonUrl: string | null;
 }
 
-// Satu fungsi murni yang nurunin SEMUA state awal (form + 2 preview gambar)
-
 function deriveProfileState(
   userData?: ProfileUserWithParticipant,
   detailData?: ExtendedProfileDetail,
@@ -73,8 +71,6 @@ function deriveProfileState(
       nisnOrNim: detailData?.student_id_number || "",
       gender: detailData?.gender || "",
     },
-    // Avatar: participant dulu baru user (userData.avatar selalu null
-    // dari response server, jadi urutan fallback ini penting).
     avatarUrl: detailData?.avatar || userData?.avatar || null,
     twibbonUrl: detailData?.twibbon || null,
   };
@@ -83,7 +79,6 @@ function deriveProfileState(
 export default function ProfilePage() {
   const queryClient = useQueryClient();
 
-  // 1. Fetch data profil & tim
   const { data: profileResponse, isLoading: isProfileLoading } = useProfile();
   const { data: teamResponse } = useMyTeam(true);
   const updateProfileMutation = useUpdateProfile();
@@ -95,7 +90,6 @@ export default function ProfilePage() {
   const detailData = userData?.participant;
   const teamData = teamResponse?.data?.team;
 
-  // 2. State form & preview media
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [twibbonFile, setTwibbonFile] = useState<File | null>(null);
@@ -124,7 +118,6 @@ export default function ProfilePage() {
     }
   }
 
-  // 3. Handler gambar
   const handleChangeAvatar = (file: File) => {
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
@@ -147,7 +140,6 @@ export default function ProfilePage() {
     toast.info("Perubahan dibatalkan.");
   };
 
-  // 4. Submit profile
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -183,7 +175,8 @@ export default function ProfilePage() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="w-full max-w-5xl mx-auto space-y-6 pb-12"
+      // Mengganti max-w-5xl mx-auto dengan w-full agar lebarnya konsisten penuh mengikuti padding layout utama dashboard
+      className="w-full space-y-6 relative z-10 pb-12"
     >
       <div>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">
