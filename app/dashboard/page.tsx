@@ -119,8 +119,8 @@ export default function DashboardPage() {
             <DeadlineCard
               label="Tenggat Waktu"
               title="Batas Akhir Pengumpulan Karya"
-              startDate="2026-07-01"
-              targetDate="2026-08-15"
+              startDate="2026-08-09"
+              targetDate="2026-08-27"
             />
             <EmptyStateCard team={teamData} />
           </div>
