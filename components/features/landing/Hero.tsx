@@ -21,9 +21,7 @@ export default function Hero() {
 
         <h1 className="text-5xl md:text-6xl leading-[1.1] tracking-tight">
           <span className="block font-normal text-slate-900">From</span>
-          <span className="block font-extrabold text-slate-900">
-            Vision to
-          </span>
+          <span className="block font-extrabold text-slate-900">Vision to</span>
           <span className="block font-extrabold text-primary">
             <span className="relative inline-block">
               Innovation
@@ -45,7 +43,9 @@ export default function Hero() {
         </h1>
 
         <p className="text-slate-500 text-base md:text-lg max-w-xl leading-relaxed">
-          Kompetisi teknologi tahunan dari UKM Intermedia Universitas Amikom Purwokerto bagi pelajar SMA/SMK/MA se-Indonesia untuk menjadi pelopor pelestarian keberagaman bahasa melalui inovasi digital.
+          Kompetisi teknologi tahunan dari UKM Intermedia Universitas Amikom
+          Purwokerto bagi pelajar SMA/SMK/MA se-Indonesia untuk menjadi pelopor
+          pelestarian keberagaman bahasa melalui inovasi digital.
         </p>
 
         <div className="flex flex-wrap gap-4 pt-2">
@@ -54,12 +54,12 @@ export default function Hero() {
               Daftar Sekarang
             </Button>
           </Link>
-          <Link href="#tentang">
+          <Link href="/registration-guidebook">
             <Button
               variant="outline"
               className="rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md px-7 py-5 text-sm font-medium border-slate-300 text-slate-800 bg-white"
             >
-              Lihat Selengkapnya
+              Guidebook Pendaftaran
             </Button>
           </Link>
         </div>

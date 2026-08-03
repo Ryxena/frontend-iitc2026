@@ -20,7 +20,7 @@ export function useLogout() {
       // oleh Route Handler, kita perlu paksa Server Component baca ulang
       // (kalau nanti ada layout yang fetch data user di server).
       router.refresh();
-      router.push("/login");
+      router.push("/");
     },
     onError: () => {
       // Fallback jaga-jaga: kalaupun request ke Route Handler gagal total
@@ -28,7 +28,7 @@ export function useLogout() {
       // memang tidak bisa kita hapus dari client, tapi middleware akan
       // tetap redirect balik ke sini kalau token beneran sudah invalid
       // di sisi Laravel, dan kalau tidak, minimal user bisa coba lagi.
-      router.push("/login");
+      router.push("/");
     },
   });
 }
