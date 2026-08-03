@@ -47,7 +47,7 @@ export default function About() {
             IITC 2026 merupakan wadah bagi generasi muda untuk mengekspresikan ide kreatif dan mentransformasikan visi mereka menjadi karya visual. Kami menantang peserta untuk menciptakan solusi teknologi yang inklusif dan edukatif.
           </p>
           <p className="leading-[1.8] text-[1.05rem]">
-            Dengan semangat <span className="font-semibold text-slate-800">"From Vision to Innovation"</span>, IITC bertujuan membangun jembatan antara kekayaan warisan bahasa masa lalu dengan masa depan melalui antarmuka teknologi digital yang modern.
+            Dengan semangat <span className="font-semibold text-slate-800">"From Vision to Innovation"</span>, IITC menginspirasi generasi muda untuk menciptakan inovasi digital yang tidak hanya menjawab tantangan masa depan, tetapi juga mengangkat dan melestarikan keberagaman bahasa Indonesia sebagai bagian dari identitas bangsa di era digital.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 lg:pt-6">

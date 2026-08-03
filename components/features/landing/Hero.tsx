@@ -43,9 +43,7 @@ export default function Hero() {
         </h1>
 
         <p className="text-slate-500 text-base md:text-lg max-w-xl leading-relaxed">
-          Kompetisi teknologi tahunan dari UKM Intermedia Universitas Amikom
-          Purwokerto bagi pelajar SMA/SMK/MA se-Indonesia untuk menjadi pelopor
-          pelestarian keberagaman bahasa melalui inovasi digital.
+          Kompetisi teknologi tahunan berskala nasional yang diselenggarakan oleh UKM INTERMEDIA Universitas Amikom Purwokerto yang pada tahun ini ditujukan bagi pelajar SMA/SMK/MA se-Indonesia sebagai wadah untuk berkarya, berinovasi, serta menjadi pelopor pelestarian keberagaman bahasa melalui teknologi digital.
         </p>
 
         <div className="flex flex-wrap gap-4 pt-2">

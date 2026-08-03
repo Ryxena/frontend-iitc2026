@@ -10,12 +10,12 @@ const faqData = [
   {
     question: "Apa itu IITC?",
     answer:
-      "Intermedia Information Technology Competition (IITC) adalah ajang kompetisi teknologi bergengsi yang memadukan inovasi digital modern dengan nilai-nilai luhur kebudayaan Indonesia.",
+      "Intermedia Information Technology Competition (IITC) merupakan ajang kompetisi teknologi berskala nasional yang diselenggarakan oleh UKM INTERMEDIA Universitas Amikom Purwokerto sebagai ruang untuk mengembangkan kreativitas, menghasilkan inovasi digital, serta berkontribusi dalam melestarikan keberagaman bahasa Indonesia melalui pemanfaatan teknologi.",
   },
   {
     question: "Siapa saja yang bisa mendaftar?",
     answer:
-      "Kompetisi ini terbuka untuk siswa SMA/SMK sederajat seluruh Indonesia sesuai dengan kategori lomba yang dipilih.",
+      "Kompetisi ini terbuka bagi pelajar SMA/SMK/MA sederajat di seluruh Indonesia yang ingin mengembangkan kreativitas dan kemampuan di bidang teknologi sesuai dengan kategori lomba yang dipilih.",
   },
   {
     question: "Bagaimana cara mendaftar tim?",
@@ -41,7 +41,7 @@ const faqData = [
   },
   {
     question: "Bagaimana cara juri menilai hasil karya?",
-    answer: "Juri menilai hasil karya berdasarkan kriteria yang telah ditetapkan secara objektif dan konsisten. Detail rubrik penilaian dan daftar juri dapat dilihat pada Guide Book perlombaan.",
+    answer: "Juri menilai hasil karya berdasarkan kriteria yang telah ditetapkan secara objektif dan konsisten. Detail rubrik penilaian dapat dilihat pada Guide Book perlombaan.",
   },
   {
     question: "Bagaimana cara membayar biaya pendaftarannya?",
@@ -72,8 +72,8 @@ const faqData = [
     ),
   },
   {
-    question: "Link grup whatsapp nya dimana ya?",
-    answer: "Link grup WhatsApp akan otomatis muncul di halaman dashboard setelah ketua tim melakukan pembayaran dan dikonfirmasi oleh admin.",
+    question: "Link grup whatsapp",
+    answer: "Link grup WhatsApp akan tersedia secara otomatis di halaman Dashboard setelah pembayaran berhasil dikonfirmasi oleh admin.",
   },
   {
     question: "Apakah lomba Web Design harus terhubung ke database dan memiliki sistem backend?",

@@ -12,7 +12,42 @@ import {
   Trophy,
   ChevronDown,
   LucideIcon,
+  Check,
 } from "lucide-react";
+
+function isTimelinePassed(dateString: string): boolean {
+  const parts = dateString.split("-");
+  let lastDateStr = parts[parts.length - 1].trim();
+
+  const monthMap: Record<string, string> = {
+    januari: "January", jan: "January",
+    februari: "February", feb: "February",
+    maret: "March", mar: "March",
+    april: "April", apr: "April",
+    mei: "May",
+    juni: "June", jun: "June",
+    juli: "July", jul: "July",
+    agustus: "August", agt: "August",
+    september: "September", sept: "September", sep: "September",
+    oktober: "October", okt: "October",
+    november: "November", nov: "November",
+    desember: "December", des: "December"
+  };
+
+  const lowerDate = lastDateStr.toLowerCase();
+  for (const [id, en] of Object.entries(monthMap)) {
+    if (lowerDate.includes(id)) {
+      lastDateStr = lowerDate.replace(id, en);
+      break;
+    }
+  }
+
+  const timelineDate = new Date(lastDateStr);
+  if (isNaN(timelineDate.getTime())) return false;
+  
+  timelineDate.setHours(23, 59, 59, 999);
+  return new Date() > timelineDate;
+}
 
 type MarkerShape = "diamond" | "circle" | "filled";
 type BadgeVariant = "blue" | "orange" | "white";
@@ -34,7 +69,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "01",
     title: "Pendaftaran",
     subtitle: "Gelombang 1",
-    description: "Pendaftaran awal dengan kuota terbatas.",
+    description: "Pendaftaran awal peserta IITC 2026.",
     date: "03 Agt - 15 Agt 2026",
     icon: ClipboardCheck,
     markerShape: "diamond",
@@ -56,7 +91,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     id: "03",
     title: "Technical Meeting",
     subtitle: "Technical Meeting Peserta",
-    description: "Pengarahan teknis perlombaan secara daring.",
+    description: "Pengarahan teknis via daring.",
     date: "19 Agustus 2026",
     icon: ShieldCheck,
     markerShape: "diamond",
@@ -65,10 +100,10 @@ const TIMELINE_DATA: TimelineItem[] = [
   },
   {
     id: "04",
-    title: "Pendaftaran Seminar",
+    title: "Pembukaan Pendaftaran Seminar",
     subtitle: "Seminar Nasional",
     description: "Pembukaan tiket acara seminar nasional.",
-    date: "25 Agustus 2026",
+    date: "16 Agt - 04 Sept 2026",
     icon: Presentation,
     markerShape: "circle",
     badgeVariant: "orange",
@@ -101,7 +136,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     title: "Pengumuman Finalis",
     subtitle: "Top 3 Finalis",
     description: "Pengumuman finalis terpilih tiap kategori.",
-    date: "07 Sept 2026",
+    date: "05 Sept 2026",
     icon: Megaphone,
     markerShape: "diamond",
     badgeVariant: "blue",
@@ -120,8 +155,8 @@ const TIMELINE_DATA: TimelineItem[] = [
   },
   {
     id: "09",
-    title: "Seminar & Awarding",
-    subtitle: "Penghargaan Offline & Penutupan",
+    title: "Seminar dan Awarding",
+    subtitle: "Penghargaan Offline & Seminar",
     description: "Acara puncak dan pembagian hadiah.",
     date: "12 Sept 2026",
     icon: Trophy,
@@ -146,13 +181,13 @@ const MARKER_SHAPE_CLASS: Record<MarkerShape, string> = {
 };
 
 // React.memo mencegah Marker re-render kalau item-nya tidak berubah
-const Marker = memo(function Marker({ item }: { item: TimelineItem }) {
-  const Icon = item.icon;
+const Marker = memo(function Marker({ item, isPassed }: { item: TimelineItem; isPassed: boolean }) {
+  const Icon = isPassed ? Check : item.icon;
 
   if (item.markerShape === "filled") {
     return (
-      <div className="absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-10 h-10 bg-blue-700 rounded-xl z-10 shadow-md">
-        <Icon className="w-4 h-4 text-white" strokeWidth={2.25} />
+      <div className={`absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-10 h-10 rounded-xl z-10 shadow-md ${isPassed ? "bg-blue-600" : "bg-blue-700"}`}>
+        <Icon className="w-4 h-4 text-white" strokeWidth={isPassed ? 3 : 2.25} />
       </div>
     );
   }
@@ -161,11 +196,11 @@ const Marker = memo(function Marker({ item }: { item: TimelineItem }) {
 
   return (
     <div
-      className={`absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-10 h-10 bg-white border-2 border-slate-200 z-10 shadow-sm ${MARKER_SHAPE_CLASS[item.markerShape]}`}
+      className={`absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-10 h-10 z-10 shadow-sm ${MARKER_SHAPE_CLASS[item.markerShape]} ${isPassed ? "bg-blue-700 border-none" : "bg-white border-2 border-slate-200"}`}
     >
       <Icon
-        className={`w-4 h-4 text-slate-600 ${iconRotate}`}
-        strokeWidth={2.25}
+        className={`w-4 h-4 ${iconRotate} ${isPassed ? "text-white" : "text-slate-600"}`}
+        strokeWidth={isPassed ? 3 : 2.25}
       />
     </div>
   );
@@ -186,7 +221,6 @@ const cardVariants: Variants = {
   },
 };
 
-// React.memo pada card mencegah item lama ikut re-render saat showAll berubah
 const TimelineCard = memo(function TimelineCard({
   item,
   index,
@@ -196,6 +230,8 @@ const TimelineCard = memo(function TimelineCard({
   index: number;
   isNew: boolean;
 }) {
+  const isPassed = isTimelinePassed(item.date);
+
   return (
     <motion.div
       layout
@@ -210,7 +246,7 @@ const TimelineCard = memo(function TimelineCard({
     >
       <div className="hidden md:block md:w-1/2"></div>
 
-      <Marker item={item} />
+      <Marker item={item} isPassed={isPassed} />
 
       <div
         className={`w-full md:w-1/2 pl-16 md:pl-0 flex ${
@@ -225,6 +261,8 @@ const TimelineCard = memo(function TimelineCard({
           } ${
             item.markerShape === "filled"
               ? "bg-blue-700 border-none shadow-lg"
+              : isPassed
+              ? "border-blue-200 bg-blue-50/20"
               : "border-slate-200"
           }`}
         >
@@ -263,13 +301,17 @@ const TimelineCard = memo(function TimelineCard({
             </p>
 
             <span
-              className={`inline-flex items-center justify-center text-[0.7rem] font-semibold px-4 py-2 rounded-tl-none rounded-tr-2xl rounded-br-none rounded-bl-2xl ${
+              className={`inline-flex items-center justify-center gap-1.5 text-[0.7rem] font-semibold px-4 py-2 rounded-tl-none rounded-tr-2xl rounded-br-none rounded-bl-2xl ${
                 item.align === "left"
                   ? "md:rounded-tl-2xl md:rounded-tr-none md:rounded-br-2xl md:rounded-bl-none"
                   : ""
-              } ${BADGE_STYLES[item.badgeVariant]}`}
+              } ${
+                isPassed
+                  ? "border border-blue-600 bg-blue-50 text-blue-700"
+                  : BADGE_STYLES[item.badgeVariant]
+              }`}
             >
-              {item.date}
+              {item.date} 
             </span>
           </CardContent>
         </Card>
