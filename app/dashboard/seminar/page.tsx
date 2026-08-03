@@ -9,7 +9,7 @@ export default function SeminarPage() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="w-full max-w-5xl mx-auto space-y-8 pb-12"
+      className="w-full space-y-10 relative z-10 pb-12"
     >
       <div>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">
