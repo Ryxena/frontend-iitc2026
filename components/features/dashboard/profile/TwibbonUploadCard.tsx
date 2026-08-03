@@ -51,7 +51,7 @@ export default function TwibbonUploadCard({
   return (
     <div className="flex h-full w-full flex-col gap-2">
       <p className="text-sm font-medium text-slate-700">
-        Bukti Upload Twibbon{" "}
+        Bukti Upload Twibbon <span className="text-red-500">*</span>
       </p>
 
       <button
