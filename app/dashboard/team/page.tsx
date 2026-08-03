@@ -28,9 +28,11 @@ import {
   useRemoveMember,
   getManageTeamErrorMessage,
 } from "@/features/team/hooks/use-manage-team";
-
 import { useProfile } from "@/features/profile/hooks/use-profile";
 import type { ProfileDetail } from "@/types/profile-type";
+
+// Import key konstan dari tempat yang tersentralisasi (contoh mengambil dari useLogout jika diletakkan di sana, atau deklarasikan ulang secara konsisten)
+import { SELECTED_COMPETITION_STORAGE_KEY } from "@/features/auth/hooks/use-logout";
 
 interface ExtendedProfileUser {
   name?: string;
@@ -42,8 +44,6 @@ interface ExtendedProfileUser {
     twibbon?: string;
   };
 }
-
-const SELECTED_COMPETITION_STORAGE_KEY = "selectedCompetitionSlug";
 
 function TeamPageContent() {
   const searchParams = useSearchParams();
@@ -138,7 +138,12 @@ function TeamPageContent() {
 
   const handleDeleteTeam = () => {
     deleteMutation.mutate(undefined, {
-      onSuccess: () => toast.success("Tim berhasil dihapus."),
+      onSuccess: () => {
+        toast.success("Tim berhasil dihapus.");
+        // Bersihkan localStorage juga setelah tim dihapus (opsional)
+        localStorage.removeItem(SELECTED_COMPETITION_STORAGE_KEY);
+        setActiveSlug(null);
+      },
       onError: (error) => toast.error(getManageTeamErrorMessage(error)),
     });
   };
@@ -208,7 +213,6 @@ function TeamPageContent() {
                 </div>
               </div>
 
-              {/* Mengganti max-w-5xl mx-auto dengan w-full agar konsisten penuh */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}

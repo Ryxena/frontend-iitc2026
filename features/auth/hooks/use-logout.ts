@@ -1,33 +1,45 @@
+// features/auth/hooks/use-logout.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { api } from "@/lib/api/axios";
 
-import { logout } from "@/features/auth/api/logout";
+// Ekspor konstanta agar bisa digunakan bersama dengan halaman TeamPage
+export const SELECTED_COMPETITION_STORAGE_KEY = "selectedCompetitionSlug";
+
+async function logoutRequest() {
+  const { data } = await api.post("/auth/logout");
+  return data;
+}
 
 export function useLogout() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: logout,
+    mutationFn: logoutRequest,
     onSuccess: () => {
-      // Bersihkan semua cache React Query (data profile, dsb) supaya user
-      // berikutnya yang login di browser yang sama tidak sempat lihat
-      // data user lama walau sekilas (misal dari cache stale sebelum refetch).
+      // 1. Hapus cache data user yang login saat ini
       queryClient.clear();
 
-      // router.refresh() penting di sini karena dashboard/layout.tsx dan
-      // middleware baca cookie dari request server. Setelah cookie dihapus
-      // oleh Route Handler, kita perlu paksa Server Component baca ulang
-      // (kalau nanti ada layout yang fetch data user di server).
-      router.refresh();
+      // 2. BERSIHKAN LOCAL STORAGE dari sisa state dashboard/team akun sebelumnya
+      try {
+        localStorage.removeItem(SELECTED_COMPETITION_STORAGE_KEY);
+      } catch (err) {
+        console.error("Gagal menghapus data dari localStorage:", err);
+      }
+
+      // 3. Tampilkan pesan dan arahkan kembali ke halaman login
+      toast.success("Berhasil logout");
       router.push("/");
     },
     onError: () => {
-      // Fallback jaga-jaga: kalaupun request ke Route Handler gagal total
-      // (mis. network error), tetap dorong user ke /login. Cookie httpOnly
-      // memang tidak bisa kita hapus dari client, tapi middleware akan
-      // tetap redirect balik ke sini kalau token beneran sudah invalid
-      // di sisi Laravel, dan kalau tidak, minimal user bisa coba lagi.
+      // Walaupun API gagal merespons, kita tetap bersihkan memori lokal untuk berjaga-jaga
+      queryClient.clear();
+      try {
+        localStorage.removeItem(SELECTED_COMPETITION_STORAGE_KEY);
+      } catch (e) {} // Abaikan error senyap
+
       router.push("/");
     },
   });
