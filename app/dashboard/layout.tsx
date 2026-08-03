@@ -1,4 +1,3 @@
-// dashboard/layout.tsx
 "use client";
 
 import { useState } from "react";
@@ -18,10 +17,11 @@ import {
   Loader2,
   type LucideIcon,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import maskotIITC from "@/public/Maskot2.svg";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 import { Toaster } from "@/components/ui/sonner";
 
 const menuItems = [
@@ -142,6 +142,17 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { data: profileResponse } = useProfile();
+
+  // Ekstrak data user dan participant berdasarkan struktur JSON API
+  const responseData = profileResponse?.data as
+    | { user?: { name?: string; participant?: { avatar?: string | null } } }
+    | undefined;
+
+  const user = responseData?.user;
+  const avatarUrl = user?.participant?.avatar;
+  const userName = user?.name || "User";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   return (
     <div className="flex h-screen bg-[#F8FAFC]">
@@ -178,14 +189,21 @@ export default function DashboardLayout({
               <Bell className="w-5 h-5" />
             </button>
             <Avatar className="w-10 h-10 border border-indigo-100">
+              {avatarUrl && (
+                <AvatarImage
+                  src={avatarUrl}
+                  alt={userName}
+                  className="object-cover"
+                />
+              )}
               <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold">
-                A
+                {userInitial}
               </AvatarFallback>
             </Avatar>
           </div>
         </header>
 
-        {/* Page Content: Padding horizontal diatur konsisten di sini */}
+        {/* Page Content */}
         <main className="flex-1 overflow-y-auto px-6 sm:px-10 lg:px-12 py-8">
           {children}
         </main>
