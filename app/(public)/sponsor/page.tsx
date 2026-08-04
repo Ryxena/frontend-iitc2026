@@ -84,6 +84,7 @@ export default function SponsorPage() {
   }
 
   const sponsors = data?.data?.sponsors ?? [];
+  
   const platinumSponsors = sponsors.filter(
     (s) => s.tier.toLowerCase() === "platinum",
   );
@@ -94,12 +95,19 @@ export default function SponsorPage() {
   const bronzeSponsors = sponsors.filter(
     (s) => s.tier.toLowerCase() === "bronze",
   );
+  const inKindSponsors = sponsors.filter(
+    (s) => 
+      s.tier.toLowerCase() === "in kind" || 
+      s.tier.toLowerCase() === "inkind" || 
+      s.tier.toLowerCase() === "in-kind"
+  );
 
   const hasNoSponsors =
     platinumSponsors.length === 0 &&
     goldSponsors.length === 0 &&
     silverSponsors.length === 0 &&
-    bronzeSponsors.length === 0;
+    bronzeSponsors.length === 0 &&
+    inKindSponsors.length === 0;
 
   return (
     <main className="w-full min-h-screen bg-slate-50 py-20 px-4 sm:px-6 lg:px-8">
@@ -259,6 +267,31 @@ export default function SponsorPage() {
               className="grid grid-cols-3 sm:grid-cols-5 gap-3"
             >
               {bronzeSponsors.map((sponsor) => (
+                <SponsorTile
+                  key={sponsor.id}
+                  sponsor={sponsor}
+                  aspect="aspect-square"
+                />
+              ))}
+            </motion.div>
+          </motion.section>
+        )}
+
+        {/* In Kind Sponsor */}
+        {inKindSponsors.length > 0 && (
+          <motion.section
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={containerVariants}
+            className="space-y-6"
+          >
+            <TierLabel label="IN KIND" count={inKindSponsors.length} />
+            <motion.div
+              variants={itemVariants}
+              className="grid grid-cols-3 sm:grid-cols-5 gap-3"
+            >
+              {inKindSponsors.map((sponsor) => (
                 <SponsorTile
                   key={sponsor.id}
                   sponsor={sponsor}

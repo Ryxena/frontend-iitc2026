@@ -19,9 +19,10 @@ export default function PaymentInstructions({ fee }: PaymentInstructionsProps) {
   // Ubah array ini menjadi ReactNode agar bisa menerima tag HTML/JSX
   const instructions = [
     <>
-      Transfer sesuai nominal biaya pendaftaran kompetisi (
+      Transfer biaya pendaftaran sebesar{" "}
       <strong className="font-bold text-slate-900">{formattedFee}</strong>
-      ).
+      . (Pastikan nominal yang terkirim utuh dan tidak terpotong biaya admin beda
+      bank/e-wallet).
     </>,
     "Simpan bukti transfer dalam format JPG, PNG, atau PDF.",
     "Unggah file bukti pada area dropzone di samping.",

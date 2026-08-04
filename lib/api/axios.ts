@@ -29,9 +29,18 @@ export const api = axios.create({
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (typeof window !== "undefined" && error?.response?.status === 401) {
-      window.location.href = "/login";
+      // Mencegah infinite redirect loop:
+      // Hapus HTTPOnly cookie terlebih dahulu melalui endpoint server sebelum pindah halaman,
+      // agar middleware tidak mengira user masih login dan me-redirect kembali ke dashboard.
+      try {
+        await fetch("/api/auth/logout", { method: "POST" });
+      } catch (e) {
+        // Abaikan error jaringan saat mencoba logout
+      } finally {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },

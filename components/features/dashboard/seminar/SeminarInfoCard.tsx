@@ -10,9 +10,9 @@ import posterSeminar from "@/public/seminar-iitc2026.png";
 import { useSeminars } from "@/features/seminar/hooks/use-seminars";
 import SeminarNotOpenModal from "./SeminarNotOpenModal";
 
-// Helper untuk format tanggal (Contoh: "12 September 2026")
+// Helper untuk format tanggal
 function formatDateOnly(dateString?: string): string {
-  if (!dateString) return "12 September 2026";
+  if (!dateString) return "16 Agustus 2026";
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
@@ -47,7 +47,7 @@ export default function SeminarInfoCard() {
   const location =
     seminar?.location || "Aula FBIS, Universitas Amikom Purwokerto";
 
-  const rawDateTime = seminar?.dateTime || "2026-09-12T08:00:00+07:00";
+  const rawDateTime = seminar?.dateTime;
   const formattedDateTime = formatDateOnly(rawDateTime);
 
   const rawStartDate = seminar?.startDate;
@@ -58,7 +58,7 @@ export default function SeminarInfoCard() {
   const posterSource = seminar?.posterUrl || posterSeminar;
 
   const isRegistrationOpen = (() => {
-    if (!rawStartDate) return true;
+    if (!rawStartDate) return false;
     const today = new Date();
     const startDate = new Date(rawStartDate);
     today.setHours(0, 0, 0, 0);
@@ -67,7 +67,8 @@ export default function SeminarInfoCard() {
     return today >= startDate;
   })();
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (!isRegistrationOpen) {
       setIsModalOpen(true);
     }
@@ -176,6 +177,7 @@ export default function SeminarInfoCard() {
                 </a>
               ) : (
                 <Button
+                  type="button"
                   onClick={handleButtonClick}
                   className="w-full sm:w-auto bg-[#2F2FE4] hover:bg-[#13076b] text-white font-medium px-6 h-11 rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors"
                 >
