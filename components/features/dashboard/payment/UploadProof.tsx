@@ -54,9 +54,9 @@ export default function UploadProof({ status }: UploadProofProps) {
       return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    const allowedTypes = ["image/jpeg", "image/png"];
     if (!allowedTypes.includes(file.type)) {
-      setClientError("Format file tidak didukung. Gunakan JPG, PNG, atau PDF.");
+      setClientError("Format file tidak didukung. Gunakan JPG atau PNG.");
       setUploadedFile(null);
       return;
     }
@@ -133,7 +133,7 @@ export default function UploadProof({ status }: UploadProofProps) {
                 <input
                   type="file"
                   onChange={handleFileSelect}
-                  accept="image/jpeg,image/png,application/pdf"
+                  accept="image/jpeg,image/png"
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                   disabled={paymentMutation.isPending || isLocked}
                 />
@@ -169,7 +169,7 @@ export default function UploadProof({ status }: UploadProofProps) {
                     ? "Anda tidak dapat mengunggah bukti pembayaran pada status ini."
                     : uploadedFile
                       ? "File berhasil dipilih. Siap untuk dikonfirmasi."
-                      : "atau klik untuk menelusuri komputer Anda (Maks. 5MB, JPG/PNG/PDF)"}
+                      : "atau klik untuk menelusuri komputer Anda (Maks. 5MB, JPG/PNG)"}
                 </p>
 
                 <Button

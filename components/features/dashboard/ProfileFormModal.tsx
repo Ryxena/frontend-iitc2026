@@ -206,8 +206,7 @@ export default function ProfileFormModal({
 
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">
-                      Bukti Upload Twibbon{" "}
-                      <span className="text-red-500">*</span>
+                      Bukti Upload Twibbon (Opsional)
                     </Label>
                     <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 transition-colors h-40">
                       <div className="w-10 h-10 bg-indigo-50 text-[#1a0b8c] rounded-full flex items-center justify-center mb-3">

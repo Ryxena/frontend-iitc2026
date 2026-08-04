@@ -24,7 +24,7 @@ export default function PaymentInstructions({ fee }: PaymentInstructionsProps) {
       . (Pastikan nominal yang terkirim utuh dan tidak terpotong biaya admin beda
       bank/e-wallet).
     </>,
-    "Simpan bukti transfer dalam format JPG, PNG, atau PDF.",
+    "Simpan bukti transfer dalam format JPG atau PNG.",
     "Unggah file bukti pada area dropzone di samping.",
     "Tunggu verifikasi admin maksimal 2×24 jam kerja.",
   ];
