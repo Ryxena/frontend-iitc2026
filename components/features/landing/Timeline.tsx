@@ -20,18 +20,30 @@ function isTimelinePassed(dateString: string): boolean {
   let lastDateStr = parts[parts.length - 1].trim();
 
   const monthMap: Record<string, string> = {
-    januari: "January", jan: "January",
-    februari: "February", feb: "February",
-    maret: "March", mar: "March",
-    april: "April", apr: "April",
+    januari: "January",
+    jan: "January",
+    februari: "February",
+    feb: "February",
+    maret: "March",
+    mar: "March",
+    april: "April",
+    apr: "April",
     mei: "May",
-    juni: "June", jun: "June",
-    juli: "July", jul: "July",
-    agustus: "August", agt: "August",
-    september: "September", sept: "September", sep: "September",
-    oktober: "October", okt: "October",
-    november: "November", nov: "November",
-    desember: "December", des: "December"
+    juni: "June",
+    jun: "June",
+    juli: "July",
+    jul: "July",
+    agustus: "August",
+    agt: "August",
+    september: "September",
+    sept: "September",
+    sep: "September",
+    oktober: "October",
+    okt: "October",
+    november: "November",
+    nov: "November",
+    desember: "December",
+    des: "December",
   };
 
   const lowerDate = lastDateStr.toLowerCase();
@@ -44,7 +56,7 @@ function isTimelinePassed(dateString: string): boolean {
 
   const timelineDate = new Date(lastDateStr);
   if (isNaN(timelineDate.getTime())) return false;
-  
+
   timelineDate.setHours(23, 59, 59, 999);
   return new Date() > timelineDate;
 }
@@ -70,7 +82,7 @@ const TIMELINE_DATA: TimelineItem[] = [
     title: "Pendaftaran",
     subtitle: "Gelombang 1",
     description: "Pendaftaran awal peserta IITC 2026.",
-    date: "03 Agt - 15 Agt 2026",
+    date: "04 Agt - 15 Agt 2026",
     icon: ClipboardCheck,
     markerShape: "diamond",
     badgeVariant: "blue",
@@ -181,13 +193,24 @@ const MARKER_SHAPE_CLASS: Record<MarkerShape, string> = {
 };
 
 // React.memo mencegah Marker re-render kalau item-nya tidak berubah
-const Marker = memo(function Marker({ item, isPassed }: { item: TimelineItem; isPassed: boolean }) {
+const Marker = memo(function Marker({
+  item,
+  isPassed,
+}: {
+  item: TimelineItem;
+  isPassed: boolean;
+}) {
   const Icon = isPassed ? Check : item.icon;
 
   if (item.markerShape === "filled") {
     return (
-      <div className={`absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-10 h-10 rounded-xl z-10 shadow-md ${isPassed ? "bg-blue-600" : "bg-blue-700"}`}>
-        <Icon className="w-4 h-4 text-white" strokeWidth={isPassed ? 3 : 2.25} />
+      <div
+        className={`absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center w-10 h-10 rounded-xl z-10 shadow-md ${isPassed ? "bg-blue-600" : "bg-blue-700"}`}
+      >
+        <Icon
+          className="w-4 h-4 text-white"
+          strokeWidth={isPassed ? 3 : 2.25}
+        />
       </div>
     );
   }
@@ -250,7 +273,9 @@ const TimelineCard = memo(function TimelineCard({
 
       <div
         className={`w-full md:w-1/2 pl-16 md:pl-0 flex ${
-          item.align === "left" ? "md:pr-12 justify-start md:justify-end" : "md:pl-12 justify-start"
+          item.align === "left"
+            ? "md:pr-12 justify-start md:justify-end"
+            : "md:pl-12 justify-start"
         }`}
       >
         <Card
@@ -262,8 +287,8 @@ const TimelineCard = memo(function TimelineCard({
             item.markerShape === "filled"
               ? "bg-blue-700 border-none shadow-lg"
               : isPassed
-              ? "border-blue-200 bg-blue-50/20"
-              : "border-slate-200"
+                ? "border-blue-200 bg-blue-50/20"
+                : "border-slate-200"
           }`}
         >
           <CardContent
@@ -289,7 +314,7 @@ const TimelineCard = memo(function TimelineCard({
             >
               {item.subtitle}
             </p>
-            
+
             <p
               className={`text-[0.85rem] leading-snug mb-4 ${
                 item.markerShape === "filled"
@@ -311,7 +336,7 @@ const TimelineCard = memo(function TimelineCard({
                   : BADGE_STYLES[item.badgeVariant]
               }`}
             >
-              {item.date} 
+              {item.date}
             </span>
           </CardContent>
         </Card>
