@@ -23,7 +23,7 @@ import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
 import SubmissionStatusBadge from "@/components/features/dashboard/submission/SubmissionStatusBadge";
 import SubmissionSkeleton from "@/components/features/dashboard/submission/SubmissionSkeleton";
 import TwibbonRequirementModal from "@/components/features/dashboard/payment/TwibbonRequirementModal";
-import SubmissionPeriodModal from "@/components/features/dashboard/submission/SubmissionPeriodModal"; // Import modal baru
+import SubmissionPeriodModal from "@/components/features/dashboard/submission/SubmissionPeriodModal";
 import {
   getRequirementGroup,
   RequirementList,
@@ -78,7 +78,6 @@ function getWhatsAppGroupUrl(competitionName?: string): string {
 
 function computeSubmissionTimeStatus(): "before" | "after" | "active" {
   const now = new Date();
-  // Jadwal Unggah Karya: 19 Agustus 2026 00:00:00 WIB hingga 27 Agustus 2026 23:59:59 WIB
   const startDate = new Date("2026-08-19T00:00:00+07:00");
   const endDate = new Date("2026-08-27T23:59:59+07:00");
 
@@ -92,13 +91,6 @@ export default function UploadWorkPage() {
   const [userEditedLink, setUserEditedLink] = useState<string | null>(null);
   const [isModalDismissed, setIsModalDismissed] = useState(false);
 
-  // Dihitung sekali saat komponen mount lewat lazy initializer (fungsi ini
-  // hanya dipanggil sekali oleh React, bukan tiap render) — bukan di
-  // useEffect, supaya tidak memicu "setState synchronously within an
-  // effect". Nggak butuh state "checking" lagi karena hitungannya instan
-  // (bukan operasi async), jadi timeStatus sudah pasti terisi sejak
-  // render pertama.
-  // Referensi: https://react.dev/learn/you-might-not-need-an-effect
   const [timeStatus] = useState<"before" | "after" | "active">(
     computeSubmissionTimeStatus,
   );
@@ -135,9 +127,13 @@ export default function UploadWorkPage() {
     paymentStatus && VALID_PAYMENT_STATUSES.includes(paymentStatus),
   );
 
+  // LOGIKA PRIORITAS MODAL
+  // StepGuard akan aktif jika salah satu dari ketiga ini belum selesai
+  const isStepGuardActive =
+    !isProfileComplete || !isTeamComplete || !isPaymentComplete;
+
   const hasTwibbon = Boolean(participant?.twibbon);
 
-  // Munculkan modal otomatis TAPI HANYA JIKA dalam batas rentang waktu submit (timeStatus === "active")
   const showTwibbonModal =
     timeStatus === "active" &&
     isPaymentComplete &&
@@ -166,7 +162,6 @@ export default function UploadWorkPage() {
     if (!driveLink.trim() || !team || !isLeader || timeStatus !== "active")
       return;
 
-    // VALIDASI TAMBAHAN: Jika belum upload twibbon, cegah submit dan buka modal
     if (!hasTwibbon) {
       setIsModalDismissed(false);
       return;
@@ -194,9 +189,16 @@ export default function UploadWorkPage() {
 
   return (
     <div className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col items-center">
-      {/* Modal Pengecekan Batas Waktu Submit (19 - 27 Agt) */}
+      {/* 
+        MODIFIKASI DI SINI: 
+        SubmissionPeriodModal hanya muncul jika isStepGuardActive bernilai FALSE 
+        (artinya pengguna sudah lolos semua pengecekan persyaratan)
+      */}
       <SubmissionPeriodModal
-        isOpen={timeStatus === "before" || timeStatus === "after"}
+        isOpen={
+          !isStepGuardActive &&
+          (timeStatus === "before" || timeStatus === "after")
+        }
         status={timeStatus}
       />
 
