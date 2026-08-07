@@ -14,6 +14,7 @@ import WhatsAppGroupCard from "@/components/features/dashboard/payment/WhatsAppG
 import StepGuardModal from "@/components/features/dashboard/StepGuardModal";
 import PaymentPageSkeleton from "@/components/features/dashboard/payment/PaymentPageSkeleton";
 import TwibbonRequirementModal from "@/components/features/dashboard/payment/TwibbonRequirementModal";
+import AdminFeeNoticeModal from "@/components/features/dashboard/payment/AdminFeeNoticeModal";
 
 // Import hooks
 import { usePaymentStatus } from "@/features/payment/hooks/use-payment-status";
@@ -46,7 +47,7 @@ type PaymentMethodConfig = {
 const PAYMENT_METHODS: PaymentMethodConfig[] = [
   {
     title: "E-Wallet",
-    provider: "GOPAY",
+    provider: "DANA",
     accountNumber: "082137805336",
     accountName: "Maylinda Eka Saputri",
     icon: Wallet,
@@ -99,8 +100,9 @@ export default function PaymentPage() {
   const { data: statusResponse, isLoading: isStatusLoading } =
     usePaymentStatus();
 
-  // State HANYA untuk melacak apakah user sudah menutup modal secara manual di sesi ini
-  const [isModalDismissed, setIsModalDismissed] = useState(false);
+  // State untuk melacak penutupan modal manual di sesi ini
+  const [isTwibbonModalDismissed, setIsTwibbonModalDismissed] = useState(false);
+  const [isFeeModalDismissed, setIsFeeModalDismissed] = useState(false);
 
   // Evaluasi Profil dengan casting aman
   const user = profileResponse?.data?.user as ExtendedProfileUser | undefined;
@@ -121,17 +123,25 @@ export default function PaymentPage() {
   const { status: currentStatus, reason: rejectReason } =
     statusResponse?.data?.payment ?? {};
 
-  const isPaymentVerified = VERIFIED_STATUSES.includes(
-    currentStatus?.toUpperCase() ?? "",
-  );
+  const rawStatus = currentStatus?.toUpperCase() ?? "";
+
+  const isPaymentVerified = VERIFIED_STATUSES.includes(rawStatus);
+  const isPaymentPending = rawStatus === "PENDING";
 
   // Mengecek apakah user sudah upload twibbon di profilnya
   const hasTwibbon = Boolean(participant?.twibbon);
 
-  // Turunkan nilai boolean langsung (Derived State).
-  // Tampil JIKA: Terverifikasi DAN Belum ada twibbon DAN Belum ditutup manual
+  // Logika Kemunculan Modal Twibbon (Jika SUDAH Bayar)
   const showTwibbonModal =
-    isPaymentVerified && !hasTwibbon && !isModalDismissed;
+    isPaymentVerified && !hasTwibbon && !isTwibbonModalDismissed;
+
+  // Logika Kemunculan Modal Pemberitahuan Biaya (Hanya Jika BELUM Bayar atau INVALID/REJECTED)
+  const showFeeModal =
+    isProfileComplete &&
+    isTeamComplete &&
+    !isPaymentVerified &&
+    !isPaymentPending && // Modal tidak akan muncul saat status PENDING
+    !isFeeModalDismissed;
 
   // Data Kompetisi
   const competition = team?.competition;
@@ -155,10 +165,18 @@ export default function PaymentPage() {
         requiredStep="payment"
       />
 
-      {/* Render pop-up Modal */}
+      {/* Render pop-up Modal Informasi Biaya (Bagi yang belum bayar atau invalid) */}
+      <AdminFeeNoticeModal
+        isOpen={showFeeModal}
+        onClose={() => setIsFeeModalDismissed(true)}
+        competitionName={competitionName}
+        fee={competitionPrice}
+      />
+
+      {/* Render pop-up Modal Twibbon (Bagi yang sudah diverifikasi) */}
       <TwibbonRequirementModal
         isOpen={showTwibbonModal}
-        onClose={() => setIsModalDismissed(true)}
+        onClose={() => setIsTwibbonModalDismissed(true)}
         whatsappUrl={whatsappGroupUrl}
       />
 
